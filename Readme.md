@@ -1,7 +1,7 @@
 # Личный проект «Киноман» [![Build status][travis-image]][travis-url]
 
 * Студент: [Юлия Елагина](https://up.htmlacademy.ru/ecmascript/11/user/938431).
-* Наставник: `Неизвестно`.
+* Наставник: [Александр Бабченко](https://up.htmlacademy.ru/ecmascript/11/user/619357).
 
 ---
 
