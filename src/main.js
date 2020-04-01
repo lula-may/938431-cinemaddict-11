@@ -302,6 +302,6 @@ const filmListExtraElements = filmsElement.querySelectorAll(`.films-list--extra`
 [].forEach.call(filmListExtraElements, (it) => renderCardsList(it, getCardTemplate(), CARDS_AMOUNT_EXTRA));
 
 // Отрисовываю попап, чтобы не ругался eslint на неиспользуемый код
-render(footerElement, getFilmDetailsTemplate, `afterend`);
+render(footerElement, getFilmDetailsTemplate(), `afterend`);
 // Скрываю попап
 document.querySelector(`.film-details`).style.display = `none`;
