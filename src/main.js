@@ -291,10 +291,17 @@ render(pageMainElement, getSortingBarTemplate());
 render(pageMainElement, getCardsListTemplate());
 
 const filmsElement = pageMainElement.querySelector(`.films`);
+const filmsListElement = filmsElement.querySelector(`.films-list`);
 renderCardsList(filmsElement, getCardTemplate(), CARDS_AMOUNT_MAIN);
+render(filmsListElement, getShowMoreButtonTemplate());
 
 render(filmsElement, getTopRatedTemplate());
 render(filmsElement, getMostCommentedTemplate());
 
 const filmListExtraElements = filmsElement.querySelectorAll(`.films-list--extra`);
 [].forEach.call(filmListExtraElements, (it) => renderCardsList(it, getCardTemplate(), CARDS_AMOUNT_EXTRA));
+
+// Отрисовываю попап, чтобы не ругался eslint на неиспользуемый код
+render(footerElement, getFilmDetailsTemplate, `afterend`);
+// Скрываю попап
+document.querySelector(`.film-details`).style.display = `none`;
