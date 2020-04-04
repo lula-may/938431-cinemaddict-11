@@ -1,5 +1,3 @@
-'use strict';
-
 const CARDS_AMOUNT_MAIN = 5;
 const CARDS_AMOUNT_EXTRA = 2;
 
