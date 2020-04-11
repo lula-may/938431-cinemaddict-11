@@ -7,9 +7,12 @@ import {getShowMoreButtonTemplate} from "./components/show-more.js";
 import {getTopRatedTemplate} from "./components/top-rate.js";
 import {getMostCommentedTemplate} from "./components/most-commented-list.js";
 import {getFilmDetailsTemplate} from "./components/film-details.js";
+import {generateFilms} from "./mock/film.js";
 
 const CARDS_AMOUNT_MAIN = 5;
 const CARDS_AMOUNT_EXTRA = 2;
+const FILMS_AMOUNT = 20;
+const films = generateFilms(FILMS_AMOUNT);
 
 const render = (container, template, place = `beforeend`) => {
   container.insertAdjacentHTML(place, template);
