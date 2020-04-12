@@ -6,11 +6,13 @@ const MAX_ACTORS = 5;
 const MAX_WRITERS = 3;
 const MIN_YEAR = 1930;
 const MAX_YEAR = 2020;
-const MIN_LENGTH = 60;
-const MAX_LENGTH = 180;
+const MIN_FILM_LENGTH = 60;
+const MAX_FILM_LENGTH = 180;
 const MIN_AGE = 1;
 const MAX_AGE = 7;
 const HOUR = 60;
+const MONTHS_AMOUNT = 12;
+const DAYS_AMOUNT = 31;
 const FILM_NAMES = [
   `The Dance of Life`,
   `Sagebrush Trail`,
@@ -35,18 +37,20 @@ const COUNTRIES = [
 ];
 
 const GENRES = [
-  `action`,
-  `adventure`,
-  `comedy`,
-  `crime`,
-  `drama`,
-  `historical`,
-  `horror`,
-  `musical`,
-  `sience fiction`,
-  `thriller`,
-  `war`,
-  `western`
+  `Action`,
+  `Adventure`,
+  `Comedy`,
+  `Crime`,
+  `Drama`,
+  `Film-Noir`,
+  `Historical`,
+  `Horror`,
+  `Musical`,
+  `Mystery`,
+  `Sience fiction`,
+  `Thriller`,
+  `War`,
+  `Western`
 ];
 
 const DIRECTORS = [
@@ -136,14 +140,21 @@ const getRandomSubList = (items, value) => {
   return subList;
 };
 
-const getRandomDate = () => {
+const getRandomReleaseDate = () => {
+  const year = getRandomInteger(MIN_YEAR, MAX_YEAR);
+  const month = getRandomInteger(1, MONTHS_AMOUNT);
+  const day = getRandomInteger(1, DAYS_AMOUNT);
+  return new Date(year, month, day);
+};
+
+const getRandomCommentDate = () => {
   const date = new Date();
-  date.setDate(date.getDate() - getRandomInteger(0, 20));
+  date.setDate(date.getDate() - getRandomInteger(0, 10));
   return date;
 };
 
 const getRandomDuration = () => {
-  const duration = getRandomInteger(MIN_LENGTH, MAX_LENGTH);
+  const duration = getRandomInteger(MIN_FILM_LENGTH, MAX_FILM_LENGTH);
   const hours = Math.trunc(duration / HOUR);
   const minutes = duration % HOUR;
   return `${hours}h ${minutes}m`;
@@ -170,7 +181,7 @@ const getFilmComments = () => {
     .map(() => {
       return {
         emotion: getRandomItem(EMOTIONS),
-        date: getRandomDate(),
+        date: getRandomCommentDate(),
         text: getRandomItem(COMMENT_TEXTS),
         author: getRandomItem(ACTORS)
       };
@@ -181,20 +192,22 @@ const createFilm = () => {
   const title = getRandomItem(FILM_NAMES);
   return {
     title,
+    originalTitle: title,
     poster: FilmToPosterFile[title] || getFilmPoster(title),
     director: getRandomItem(DIRECTORS),
     writers: getRandomSubList(WRITERS, getRandomInteger(1, MAX_WRITERS)).join(`, `),
     actors: getRandomSubList(ACTORS, getRandomInteger(MIN_ACTORS, MAX_ACTORS)).join(`, `),
-    year: getRandomInteger(MIN_YEAR, MAX_YEAR),
+    date: getRandomReleaseDate(),
     duration: getRandomDuration(),
     country: getRandomItem(COUNTRIES),
-    genre: getRandomItem(GENRES),
+    genres: getRandomSubList(GENRES, getRandomInteger(1, MAX_WRITERS)),
     description: getFilmDescription(),
     comments: getFilmComments(),
     rating: getRandomInteger(0, 100) / 10,
     age: getRandomInteger(MIN_AGE, MAX_AGE) * 3,
     isWatched: getRandomBoolean(),
     isFavorite: getRandomBoolean(),
+    isInWatchList: getRandomBoolean(),
   };
 };
 
