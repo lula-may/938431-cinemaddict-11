@@ -28,6 +28,7 @@ render(pageHeaderElement, getUserProfileTemplate());
 render(pageMainElement, getMainNavTemplate());
 render(pageMainElement, getSortingBarTemplate());
 render(pageMainElement, getCardsListTemplate());
+render(footerElement, getFilmDetailsTemplate(films[0]), `afterend`);
 
 const filmsElement = pageMainElement.querySelector(`.films`);
 const filmsListElement = filmsElement.querySelector(`.films-list`);
@@ -36,7 +37,6 @@ let showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
 for (let i = 0; i < showingCardsCount; i++) {
   render(listContainer, getCardTemplate(films[i]));
 }
-// films.forEach((film) => render(listContainer, getCardTemplate(film)));
 
 render(filmsListElement, getShowMoreButtonTemplate());
 
@@ -65,7 +65,17 @@ showMoreButtonElement.addEventListener(`click`, () => {
 // const filmListExtraElements = filmsElement.querySelectorAll(`.films-list--extra`);
 // filmListExtraElements.forEach((it) => renderCardsList(it, getCardTemplate(), CARDS_AMOUNT_EXTRA));
 
-// Отрисовываю попап, чтобы не ругался eslint на неиспользуемый код
-render(footerElement, getFilmDetailsTemplate(films[0]), `afterend`);
-// // Скрываю попап
-// document.querySelector(`.film-details`).style.display = `none`;
+// Отрисовываю и скрываю попап
+const popupElement = document.querySelector(`.film-details`);
+popupElement.style.display = `none`;
+
+// Временно вешаю обработчик на первую карточку для открытия попапа
+const poster = listContainer.querySelector(`img`);
+const onCloseButtonClick = () => {
+  popupElement.style.display = `none`;
+};
+poster.addEventListener(`click`, () => {
+  popupElement.style.display = `block`;
+  const closeButtonElement = popupElement.querySelector(`.film-details__close-btn`);
+  closeButtonElement.addEventListener(`click`, onCloseButtonClick);
+});
