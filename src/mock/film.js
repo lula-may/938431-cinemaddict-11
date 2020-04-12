@@ -205,7 +205,7 @@ const createFilm = () => {
     comments: getFilmComments(),
     rating: getRandomInteger(0, 100) / 10,
     age: getRandomInteger(MIN_AGE, MAX_AGE) * 3,
-    isWatched: getRandomBoolean(),
+    isInHistory: getRandomBoolean(),
     isFavorite: getRandomBoolean(),
     isInWatchList: getRandomBoolean(),
   };

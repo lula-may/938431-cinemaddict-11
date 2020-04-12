@@ -8,12 +8,14 @@ import {getShowMoreButtonTemplate} from "./components/show-more.js";
 // import {getMostCommentedTemplate} from "./components/most-commented-list.js";
 import {getFilmDetailsTemplate} from "./components/film-details.js";
 import {generateFilms} from "./mock/film.js";
+import {generateFilters} from "./mock/filter.js";
 
 const SHOWING_CARDS_AMOUNT_ON_START = 5;
 const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
 // const CARDS_AMOUNT_EXTRA = 2;
 const FILMS_AMOUNT = 20;
 const films = generateFilms(FILMS_AMOUNT);
+const filters = generateFilters(films);
 
 const render = (container, template, place = `beforeend`) => {
   container.insertAdjacentHTML(place, template);
@@ -25,7 +27,7 @@ const pageMainElement = document.querySelector(`.main`);
 const footerElement = document.querySelector(`.footer`);
 
 render(pageHeaderElement, getUserProfileTemplate());
-render(pageMainElement, getMainNavTemplate());
+render(pageMainElement, getMainNavTemplate(filters));
 render(pageMainElement, getSortingBarTemplate());
 render(pageMainElement, getCardsListTemplate());
 render(footerElement, getFilmDetailsTemplate(films[0]), `afterend`);
