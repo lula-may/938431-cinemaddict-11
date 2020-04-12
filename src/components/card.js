@@ -1,7 +1,8 @@
 const MAX_DESCRIPTION_LENGTH = 140;
 export const getCardTemplate = (film) => {
-  const {title, poster, date, rating, duration, genre, description, comments} = film;
+  const {title, poster, date, rating, duration, genres, description, comments} = film;
   const year = date.getYear();
+  const genre = genres.join(` `);
   const descriptionPreview = description.length > MAX_DESCRIPTION_LENGTH ?
     `${description.slice(0, MAX_DESCRIPTION_LENGTH)}...`
     : description;
