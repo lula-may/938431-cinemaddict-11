@@ -9,10 +9,8 @@ import {getMostCommentedTemplate} from "./components/most-commented-list.js";
 import {getFooterStatisticTemplate} from "./components/footer.js";
 import {getFilmDetailsTemplate} from "./components/film-details.js";
 import {generateFilms} from "./mock/film.js";
-import {generateFilters} from "./mock/filter.js";
-import {getUserLevel} from "./mock/user.js";
-import {getExtraFilms} from "./mock/films-extra.js";
-
+import {generateFilters} from "./components/filter.js";
+import {getUserLevel, getExtraFilms} from "./components/utils.js";
 
 const SHOWING_CARDS_AMOUNT_ON_START = 5;
 const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;

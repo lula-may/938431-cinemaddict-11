@@ -1,3 +1,12 @@
+const getUserLevel = (films) => {
+  return films.reduce((acc, film) => {
+    if (film.isInHistory) {
+      acc++;
+    }
+    return acc;
+  }, 0);
+};
+
 const getMostCommentedFilms = (films, amount) => {
   return films
   .slice()
@@ -21,5 +30,4 @@ const getExtraFilms = (films, amount) => {
   extraFilms.push(getMostCommentedFilms(films, amount));
   return extraFilms;
 };
-export {getExtraFilms};
-
+export {getUserLevel, getExtraFilms};

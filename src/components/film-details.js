@@ -10,8 +10,6 @@ const getCommentDateText = (date) => {
   switch (new Date().getDate() - date.getDate()) {
     case 0: return `Today`;
     case 1: return `Yesderday`;
-    case 2: return `2 days ago`;
-    case 3: return `3 days ago`;
     default: return formatDate(date);
   }
 };
