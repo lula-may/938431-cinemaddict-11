@@ -1,5 +1,7 @@
+import {createElement} from "../utils.js";
+
 const MAX_DESCRIPTION_LENGTH = 140;
-export const getCardTemplate = (film) => {
+const getCardTemplate = (film) => {
   const {title, poster, date, rating, duration, genres, description, comments} = film;
   const year = date.getYear();
   const genre = genres.join(` `);
@@ -26,3 +28,25 @@ export const getCardTemplate = (film) => {
     </article>`
   );
 };
+
+export default class Card {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return getCardTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
