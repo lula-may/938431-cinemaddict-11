@@ -16,71 +16,106 @@ import {render, RenderPosition} from "./utils.js";
 const SHOWING_CARDS_AMOUNT_ON_START = 5;
 const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
 const CARDS_AMOUNT_EXTRA = 2;
-const FILMS_AMOUNT = 40;
+const FILMS_AMOUNT = 20;
 const films = generateFilms(FILMS_AMOUNT);
 const userLevel = getUserLevel(films);
+const bodyElement = document.querySelector(`body`);
+const pageHeaderElement = bodyElement.querySelector(`.header`);
+const pageMainElement = bodyElement.querySelector(`.main`);
 
-// const render = (container, template, place = `beforeend`) => {
-//   container.insertAdjacentHTML(place, template);
-// };
+const renderCard = (cardsListContainer, film) => {
+  const cardComponent = new CardComponent(film);
+  const filmDetailsComponent = new FilmDetailsComponent(film);
 
-const pageHeaderElement = document.querySelector(`.header`);
-const pageMainElement = document.querySelector(`.main`);
-const footerElement = document.querySelector(`.footer`);
-debugger;
-render(pageHeaderElement, new UserProfileComponent(getUserLevel(films)).getElement(), RenderPosition.BEFOREEND);
-// render(pageMainElement, getMainNavTemplate(filters));
-// render(pageMainElement, getSortingBarTemplate());
-// render(pageMainElement, getCardsListTemplate());
-// render(footerElement, getFooterStatisticTemplate(films.length));
-// render(footerElement, getFilmDetailsTemplate(films[0]), `afterend`);
+  const openPopup = () => {
+    bodyElement.appendChild(filmDetailsComponent.getElement());
+    const closeButtonElement = filmDetailsComponent.getElement().querySelector(`.film-details__close-btn`);
+    closeButtonElement.addEventListener(`click`, onCloseButtonClick);
+    document.addEventListener(`keydown`, onEscPress);
+  };
 
-// const filmsElement = pageMainElement.querySelector(`.films`);
-// const filmsListElement = filmsElement.querySelector(`.films-list`);
-// const listContainer = filmsListElement.querySelector(`.films-list__container`);
-// let showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-// for (let i = 0; i < showingCardsCount; i++) {
-//   render(listContainer, getCardTemplate(films[i]));
-// }
-// Отрисовываю и скрываю попап
-// const popupElement = document.querySelector(`.film-details`);
-// popupElement.style.display = `none`;
+  const removePopup = () => {
+    bodyElement.removeChild(filmDetailsComponent.getElement());
+    filmDetailsComponent.removeElement();
+  };
 
-// Временно вешаю обработчик на первую карточку для открытия попапа
-// const poster = listContainer.querySelector(`img`);
-// const onCloseButtonClick = () => {
-//   popupElement.style.display = `none`;
-// };
-// poster.addEventListener(`click`, () => {
-//   popupElement.style.display = `block`;
-//   const closeButtonElement = popupElement.querySelector(`.film-details__close-btn`);
-//   closeButtonElement.addEventListener(`click`, onCloseButtonClick);
-// });
+  const onCloseButtonClick = () => {
+    removePopup();
+    document.removeEventListener(`keydown`, onEscPress);
+  };
 
-// Кнопка для открытия следующей порции карточек
-// render(filmsListElement, getShowMoreButtonTemplate());
+  const onEscPress = (evt) => {
+    evt.preventDefault();
+    if (evt.key === `Escape`) {
+      removePopup();
+      document.removeEventListener(`keydown`, onEscPress);
+    }
+  };
 
-// const showMoreButtonElement = document.querySelector(`.films-list__show-more`);
-// showMoreButtonElement.addEventListener(`click`, () => {
-//   const previousCardsCount = showingCardsCount;
-//   showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
-//   films.slice(previousCardsCount, showingCardsCount)
-//   .forEach((film) => render(listContainer, getCardTemplate(film)));
-//   if (showingCardsCount >= FILMS_AMOUNT) {
-//     showMoreButtonElement.remove();
-//   }
-// });
+  const poster = cardComponent.getElement().querySelector(`.film-card__poster`);
+  const title = cardComponent.getElement().querySelector(`.film-card__title`);
+  const comment = cardComponent.getElement().querySelector(`.film-card__comments`);
 
-// Дополнительные секции
-// render(filmsElement, getTopRatedTemplate());
-// render(filmsElement, getMostCommentedTemplate());
+  poster.addEventListener(`click`, () => openPopup());
+  title.addEventListener(`click`, () => openPopup());
+  comment.addEventListener(`click`, () => openPopup());
+  render(cardsListContainer, cardComponent.getElement(), RenderPosition.BEFOREEND);
+};
 
-// const filmListExtraElements = filmsElement.querySelectorAll(`.films-list--extra`);
-// const extraFilms = getExtraFilms(films, CARDS_AMOUNT_EXTRA);
-// let count = 0;
-// filmListExtraElements.forEach((listElement) => {
-//   const container = listElement.querySelector(`.films-list__container`);
-//   extraFilms[count].forEach((film) => render(container, getCardTemplate(film)));
-//   count++;
-// });
+const renderMainBoard = () => {
+  // Отрисовываю навигацию с фильтрами
+  const siteNavComponent = new SiteNavComponent();
+  render(pageMainElement, siteNavComponent.getElement(), RenderPosition.BEFOREEND);
+  render(siteNavComponent.getElement(), new FilterComponent(films).getElement(), RenderPosition.AFTERBEGIN);
+
+  // Отрисовываю сортировку
+  render(pageMainElement, new SortComponent().getElement(), RenderPosition.BEFOREEND);
+
+  //  Контейнер для карточек фильмов
+  const cardsListComponent = new CardsListComponent();
+  render(pageMainElement, cardsListComponent.getElement(), RenderPosition.BEFOREEND);
+  const listContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
+  let showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
+  for (let i = 0; i < showingCardsCount; i++) {
+    renderCard(listContainer, films[i]);
+  }
+
+  // Кнопка для открытия следующей порции карточек
+  const filmsListElement = cardsListComponent.getElement().querySelector(`.films-list`);
+  const showMoreComponent = new ShowMoreComponent();
+  render(filmsListElement, showMoreComponent.getElement(), RenderPosition.BEFOREEND);
+
+  showMoreComponent.getElement().addEventListener(`click`, () => {
+    const previousCardsCount = showingCardsCount;
+    showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
+    films.slice(previousCardsCount, showingCardsCount)
+    .forEach((film) => renderCard(listContainer, film));
+    if (showingCardsCount >= FILMS_AMOUNT) {
+      showMoreComponent.getElement().remove();
+      showMoreComponent.removeElement();
+    }
+  });
+
+  // Дополнительные секции
+  render(cardsListComponent.getElement(), new TopRateComponent().getElement(), RenderPosition.BEFOREEND);
+  render(cardsListComponent.getElement(), new MostCommentedComponent().getElement(), RenderPosition.BEFOREEND);
+
+  const filmListExtraElements = cardsListComponent.getElement().querySelectorAll(`.films-list--extra`);
+  const extraFilms = getExtraFilms(films, CARDS_AMOUNT_EXTRA);
+  let count = 0;
+  filmListExtraElements.forEach((listElement) => {
+    const container = listElement.querySelector(`.films-list__container`);
+    extraFilms[count].forEach((film) => renderCard(container, film));
+    count++;
+  });
+
+};
+
+render(pageHeaderElement, new UserProfileComponent(userLevel).getElement(), RenderPosition.BEFOREEND);
+
+renderMainBoard();
+
+// Статистика в футере
+const footerStatisticsElement = bodyElement.querySelector(`.footer__statistics`);
+render(footerStatisticsElement, new FooterStatComponent(films.length).getElement(), RenderPosition.AFTERBEGIN);
 
