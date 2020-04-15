@@ -33,15 +33,17 @@ const getFilterTemplate = (filters) => {
   const filtersMarkup = filters.slice(1).map((filter) => {
     const {title, count} = filter;
     return (
-      `<a href="#${title}" class="main-navigation__item main-navigation__item--">${title}
+      `<a href="#${title.toLowerCase()}" class="main-navigation__item main-navigation__item--">${title}
         <span class="main-navigation__item-count">${count}</span>
       </a>`
     );
   })
   .join(`\n`);
   return (
-    `<a href="#${noFilterTitle}" class="main-navigation__item main-navigation__item--active">${noFilterTitle} movies</a>
-    ${filtersMarkup}`
+    `<div class="main-navigation__items">
+      <a href="#${noFilterTitle}" class="main-navigation__item main-navigation__item--active">${noFilterTitle} movies</a>
+      ${filtersMarkup}
+    </div>`
   );
 };
 
