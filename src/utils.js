@@ -22,15 +22,12 @@ const createElement = (template) => {
   return divElement.firstChild;
 };
 
-const render = (container, element, place) => {
-  switch (place) {
-    case RenderPosition.AFTERBEGIN:
-      container.prepend(element);
-      break;
-    case RenderPosition.BEFOREEND:
-      container.append(element);
-      break;
+const render = (container, element, place = RenderPosition.BEFOREEND) => {
+  if (place === RenderPosition.AFTERBEGIN) {
+    container.prepend(element);
+    return;
   }
+  container.append(element);
 };
 
 export {formatDate, createElement, render, RenderPosition};

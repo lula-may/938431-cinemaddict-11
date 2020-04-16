@@ -65,15 +65,15 @@ const renderCard = (cardsListContainer, film) => {
 const renderMainBoard = () => {
   // Отрисовываю навигацию с фильтрами
   const siteNavComponent = new SiteNavComponent();
-  render(pageMainElement, siteNavComponent.getElement(), RenderPosition.BEFOREEND);
+  render(pageMainElement, siteNavComponent.getElement());
   render(siteNavComponent.getElement(), new FilterComponent(films).getElement(), RenderPosition.AFTERBEGIN);
 
   // Отрисовываю сортировку
-  render(pageMainElement, new SortComponent().getElement(), RenderPosition.BEFOREEND);
+  render(pageMainElement, new SortComponent().getElement());
 
   //  Контейнер для карточек фильмов
   const cardsListComponent = new CardsListComponent();
-  render(pageMainElement, cardsListComponent.getElement(), RenderPosition.BEFOREEND);
+  render(pageMainElement, cardsListComponent.getElement());
   const listContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
   let showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
   for (let i = 0; i < showingCardsCount; i++) {
@@ -83,7 +83,7 @@ const renderMainBoard = () => {
   // Кнопка для открытия следующей порции карточек
   const filmsListElement = cardsListComponent.getElement().querySelector(`.films-list`);
   const showMoreComponent = new ShowMoreComponent();
-  render(filmsListElement, showMoreComponent.getElement(), RenderPosition.BEFOREEND);
+  render(filmsListElement, showMoreComponent.getElement());
 
   showMoreComponent.getElement().addEventListener(`click`, () => {
     const previousCardsCount = showingCardsCount;
@@ -97,8 +97,8 @@ const renderMainBoard = () => {
   });
 
   // Дополнительные секции
-  render(cardsListComponent.getElement(), new TopRateComponent().getElement(), RenderPosition.BEFOREEND);
-  render(cardsListComponent.getElement(), new MostCommentedComponent().getElement(), RenderPosition.BEFOREEND);
+  render(cardsListComponent.getElement(), new TopRateComponent().getElement());
+  render(cardsListComponent.getElement(), new MostCommentedComponent().getElement());
 
   const filmListExtraElements = cardsListComponent.getElement().querySelectorAll(`.films-list--extra`);
   const extraFilms = getExtraFilms(films, CARDS_AMOUNT_EXTRA);
@@ -111,7 +111,7 @@ const renderMainBoard = () => {
 
 };
 
-render(pageHeaderElement, new UserProfileComponent(userLevel).getElement(), RenderPosition.BEFOREEND);
+render(pageHeaderElement, new UserProfileComponent(userLevel).getElement());
 
 renderMainBoard();
 
