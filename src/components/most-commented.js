@@ -1,6 +1,6 @@
 import {createElement} from "../utils.js";
 
-export default class TopRate {
+export default class MostCommented {
   constructor() {
     this._element = null;
   }
@@ -8,7 +8,7 @@ export default class TopRate {
   getTemplate() {
     return (
       `<section class="films-list--extra">
-        <h2 class="films-list__title">Top rated</h2>
+        <h2 class="films-list__title">Most commented</h2>
         <div class="films-list__container"></div>
       </section>`
     );

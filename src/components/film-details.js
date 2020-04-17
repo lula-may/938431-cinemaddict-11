@@ -1,6 +1,6 @@
-import {formatDate} from "../utils.js";
+import {formatDate, createElement} from "../utils.js";
 
-const getGenresMarup = (items) => {
+const getGenresMarkup = (items) => {
   return items
     .map((item) => `<span class="film-details__genre">${item}</span>`)
     .join(`\n`);
@@ -37,7 +37,7 @@ const getCommentsMarkup = (items) => {
     })
     .join(`\n`);
 };
-export const getFilmDetailsTemplate = (film) => {
+const getFilmDetailsTemplate = (film) => {
   const {
     title,
     originalTitle,
@@ -55,7 +55,7 @@ export const getFilmDetailsTemplate = (film) => {
     comments,
   } = film;
   const formatReleaseDate = date.toLocaleString(`en-GB`, {day: `numeric`, month: `long`, year: `numeric`});
-  const genreMarkup = getGenresMarup(genres);
+  const genreMarkup = getGenresMarkup(genres);
   const commentsMarkup = getCommentsMarkup(comments);
 
   return (
@@ -178,3 +178,25 @@ export const getFilmDetailsTemplate = (film) => {
     </section>`
   );
 };
+
+export default class FilmDetails {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return getFilmDetailsTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

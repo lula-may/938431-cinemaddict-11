@@ -1,17 +1,12 @@
 import {createElement} from "../utils.js";
 
-export default class TopRate {
-  constructor() {
+export default class FooterStat {
+  constructor(number) {
+    this._number = number;
     this._element = null;
   }
-
   getTemplate() {
-    return (
-      `<section class="films-list--extra">
-        <h2 class="films-list__title">Top rated</h2>
-        <div class="films-list__container"></div>
-      </section>`
-    );
+    return `<p>${this._number} movies inside</p>`;
   }
 
   getElement() {

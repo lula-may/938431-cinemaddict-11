@@ -1,16 +1,16 @@
 import {createElement} from "../utils.js";
 
-export default class TopRate {
+export default class Sort {
   constructor() {
     this._element = null;
   }
-
   getTemplate() {
     return (
-      `<section class="films-list--extra">
-        <h2 class="films-list__title">Top rated</h2>
-        <div class="films-list__container"></div>
-      </section>`
+      `<ul class="sort">
+        <li><a href="#" class="sort__button sort__button--active">Sort by default</a></li>
+        <li><a href="#" class="sort__button">Sort by date</a></li>
+        <li><a href="#" class="sort__button">Sort by rating</a></li>
+      </ul>`
     );
   }
 

@@ -1,3 +1,5 @@
+import {createElement} from "../utils";
+
 const filterNames = [`All`, `Watchlist`, `History`, `Favorites`];
 const FilterToFlag = {
   [`All`]: ``,
@@ -17,7 +19,7 @@ const getFilmsAmountByFilter = (filter, films) => {
     : ``;
 };
 
-export const generateFilters = (films) => {
+const generateFilters = (films) => {
   return filterNames.map((filter) => {
     return {
       title: filter,
@@ -25,3 +27,44 @@ export const generateFilters = (films) => {
     };
   });
 };
+
+const getFilterTemplate = (filters) => {
+  const noFilterTitle = filters[0].title;
+  const filtersMarkup = filters.slice(1).map((filter) => {
+    const {title, count} = filter;
+    return (
+      `<a href="#${title.toLowerCase()}" class="main-navigation__item main-navigation__item--">${title}
+        <span class="main-navigation__item-count">${count}</span>
+      </a>`
+    );
+  })
+  .join(`\n`);
+  return (
+    `<div class="main-navigation__items">
+      <a href="#${noFilterTitle}" class="main-navigation__item main-navigation__item--active">${noFilterTitle} movies</a>
+      ${filtersMarkup}
+    </div>`
+  );
+};
+
+export default class Filter {
+  constructor(films) {
+    this._filters = generateFilters(films);
+    this._element = null;
+  }
+
+  getTemplate() {
+    return getFilterTemplate(this._filters);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
