@@ -64,11 +64,6 @@ const renderCard = (cardsListContainer, film) => {
 };
 
 const renderMainBoard = () => {
-  // Отрисовываю навигацию с фильтрами
-  const siteNavComponent = new SiteNavComponent();
-  render(pageMainElement, siteNavComponent.getElement());
-  render(siteNavComponent.getElement(), new FilterComponent(films).getElement(), RenderPosition.AFTERBEGIN);
-
   // Отрисовываю сортировку
   render(pageMainElement, new SortComponent().getElement());
 
@@ -118,6 +113,11 @@ const renderMainBoard = () => {
 };
 
 render(pageHeaderElement, new UserProfileComponent(userLevel).getElement());
+
+// Отрисовываю навигацию с фильтрами
+const siteNavComponent = new SiteNavComponent();
+render(pageMainElement, siteNavComponent.getElement());
+render(siteNavComponent.getElement(), new FilterComponent(films).getElement(), RenderPosition.AFTERBEGIN);
 
 renderMainBoard();
 
