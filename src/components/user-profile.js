@@ -1,4 +1,3 @@
-import {createElement} from "../utils.js";
 import AbstractComponent from "./abstract-component.js";
 const NOVICE = 10;
 const FAN = 20;

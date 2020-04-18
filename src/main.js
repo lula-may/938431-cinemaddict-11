@@ -11,13 +11,13 @@ import SortComponent from "./components/sort.js";
 import TopRateComponent from "./components/top-rate.js";
 import UserProfileComponent from "./components/user-profile.js";
 import {generateFilms} from "./mock/film.js";
-import {getUserLevel, getExtraFilms} from "./components/utils.js";
-import {render, RenderPosition} from "./utils.js";
+import {getUserLevel, getExtraFilms} from "./utils/components-data.js";
+import {render, RenderPosition} from "./utils/common.js";
 
 const SHOWING_CARDS_AMOUNT_ON_START = 5;
 const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
 const CARDS_AMOUNT_EXTRA = 2;
-const FILMS_AMOUNT = 0;
+const FILMS_AMOUNT = 20;
 const films = generateFilms(FILMS_AMOUNT);
 const userLevel = getUserLevel(films);
 const bodyElement = document.querySelector(`body`);
