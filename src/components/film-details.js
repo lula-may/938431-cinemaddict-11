@@ -189,4 +189,9 @@ export default class FilmDetails extends AbstractComponent {
   getTemplate() {
     return getFilmDetailsTemplate(this._film);
   }
+
+  setCloseButtonClickHandler(handler) {
+    const closeButtonElement = this.getElement().querySelector(`.film-details__close-btn`);
+    closeButtonElement.addEventListener(`click`, handler);
+  }
 }

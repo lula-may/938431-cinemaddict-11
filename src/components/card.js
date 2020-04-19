@@ -3,7 +3,7 @@ import AbstractComponent from "./abstract-component.js";
 const MAX_DESCRIPTION_LENGTH = 140;
 const getCardTemplate = (film) => {
   const {title, poster, date, rating, duration, genres, description, comments} = film;
-  const year = date.getYear();
+  const year = date.getFullYear();
   const genre = genres.join(` `);
   const descriptionPreview = description.length > MAX_DESCRIPTION_LENGTH ?
     `${description.slice(0, MAX_DESCRIPTION_LENGTH)}...`
@@ -37,5 +37,15 @@ export default class Card extends AbstractComponent {
 
   getTemplate() {
     return getCardTemplate(this._film);
+  }
+
+  setClickHandlers(handler) {
+    const poster = this.getElement().querySelector(`.film-card__poster`);
+    const title = this.getElement().querySelector(`.film-card__title`);
+    const comment = this.getElement().querySelector(`.film-card__comments`);
+
+    poster.addEventListener(`click`, handler);
+    title.addEventListener(`click`, handler);
+    comment.addEventListener(`click`, handler);
   }
 }
