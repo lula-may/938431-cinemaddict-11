@@ -59,8 +59,9 @@ export default class PageController {
   }
 
   render(films) {
-  // Отрисовываю сортировку
+  // Отрисовываю сортировку и навешиваю обработчик изменения типа сортировки
     render(this._container, this._sortComponent);
+    this._sortComponent.setSortTypeChangeHandler(() => {});
 
     // Сообщение об отсутствии фильмов в системе, если их нет
     if (!films.length) {
