@@ -5,7 +5,7 @@ import SiteNavComponent from "./components/site-nav.js";
 import UserProfileComponent from "./components/user-profile.js";
 import {generateFilms} from "./mock/film.js";
 import {getUserLevel} from "./utils/components-data.js";
-import {render} from "./utils/render.js";
+import {RenderPosition, render} from "./utils/render.js";
 
 const FILMS_AMOUNT = 20;
 const films = generateFilms(FILMS_AMOUNT);
@@ -19,7 +19,7 @@ render(pageHeaderElement, new UserProfileComponent(userLevel));
 // Отрисовываю навигацию с фильтрами
 const siteNavComponent = new SiteNavComponent();
 render(pageMainElement, siteNavComponent);
-render(siteNavComponent.getElement(), new FilterComponent(films), `afterbegin`);
+render(siteNavComponent.getElement(), new FilterComponent(films), RenderPosition.AFTERBEGIN);
 
 // Отрисовываю основное содержимое страницы
 const pageController = new PageController(pageMainElement, bodyElement);
@@ -27,4 +27,4 @@ pageController.render(films);
 
 // Статистика в футере
 const footerStatisticsElement = bodyElement.querySelector(`.footer__statistics`);
-render(footerStatisticsElement, new FooterStatComponent(films.length), `afterbegin`);
+render(footerStatisticsElement, new FooterStatComponent(films.length), RenderPosition.AFTERBEGIN);
