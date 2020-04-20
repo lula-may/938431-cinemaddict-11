@@ -8,7 +8,7 @@ import SortComponent from "../components/sort.js";
 import TopRateComponent from "../components/top-rate.js";
 
 import {render, remove} from "../utils/render.js";
-import {getExtraFilms} from "../utils/components-data.js";
+import {getExtraFilms, getSortedFilms} from "../utils/components-data.js";
 
 const SHOWING_CARDS_AMOUNT_ON_START = 5;
 const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
@@ -45,6 +45,11 @@ const renderCard = (cardsListContainer, film, popupContainer) => {
   cardComponent.setClickHandlers(() => openPopup());
 };
 
+const renderCards = (container, cards, popupContainer) => {
+  cards.forEach((film) => renderCard(container, film, popupContainer));
+};
+
+
 export default class PageController {
   constructor(container, popupContainer) {
     this._container = container;
@@ -60,9 +65,6 @@ export default class PageController {
 
   render(films) {
     let showingFilms = films.slice();
-    const renderCards = (container, cards) => {
-      cards.forEach((film) => renderCard(container, film, this._popupContainer));
-    };
 
     const renderShowMore = () => {
       render(filmsListElement, this._showMoreComponent);
@@ -70,7 +72,7 @@ export default class PageController {
       const onShowMoreButtonClick = () => {
         const previousCardsCount = showingCardsCount;
         showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
-        renderCards(listContainer, showingFilms.slice(previousCardsCount, showingCardsCount));
+        renderCards(listContainer, showingFilms.slice(previousCardsCount, showingCardsCount), this._popupContainer);
         if (showingCardsCount >= showingFilms.length) {
           remove(this._showMoreComponent);
         }
@@ -99,11 +101,11 @@ export default class PageController {
     renderShowMore();
 
     // Навешиваю обработчик изменения типа сортировки
-    this._sortComponent.setSortTypeChangeHandler(() => {
+    this._sortComponent.setSortTypeChangeHandler((sortType) => {
       listContainer.innerHTML = ``;
-      let sortedFilms = showingFilms;
+      showingFilms = getSortedFilms(films, sortType);
       showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-      renderCards(listContainer, sortedFilms.slice(0, showingCardsCount));
+      renderCards(listContainer, showingFilms.slice(0, showingCardsCount));
       renderShowMore();
     });
 
@@ -116,7 +118,7 @@ export default class PageController {
     let count = 0;
     filmListExtraElements.forEach((listElement) => {
       const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
-      renderCards(extraFilmsContainer, extraFilms[count]);
+      renderCards(extraFilmsContainer, extraFilms[count], this._popupContainer);
       count++;
     });
   }

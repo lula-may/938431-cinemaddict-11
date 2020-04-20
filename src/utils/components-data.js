@@ -1,3 +1,5 @@
+import {SortType} from "../components/sort.js";
+
 const getUserLevel = (films) => {
   return films.reduce((acc, film) => {
     if (film.isInHistory) {
@@ -5,6 +7,26 @@ const getUserLevel = (films) => {
     }
     return acc;
   }, 0);
+};
+
+const getSortedFilms = (films, sortType) => {
+  let sortedFilms = [];
+  switch (sortType) {
+    case SortType.DEFAULT:
+      sortedFilms = films.slice();
+      break;
+
+    case SortType.BY_DATE:
+      sortedFilms = films
+      .slice()
+      .sort((left, right) => right.date - left.date);
+      break;
+
+    case SortType.BY_RATING:
+      sortedFilms = getTopRatedFilms(films);
+      break;
+  }
+  return sortedFilms;
 };
 
 const getMostCommentedFilms = (films, amount) => {
@@ -30,4 +52,4 @@ const getExtraFilms = (films, amount) => {
   extraFilms.push(getMostCommentedFilms(films, amount));
   return extraFilms;
 };
-export {getUserLevel, getExtraFilms};
+export {getUserLevel, getExtraFilms, getSortedFilms};

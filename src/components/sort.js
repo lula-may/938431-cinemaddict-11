@@ -1,6 +1,6 @@
 import AbstractComponent from "./abstract-component.js";
 
-const SortType = {
+export const SortType = {
   DEFAULT: `default`,
   BY_DATE: `by date`,
   BY_RATING: `by rating`,
