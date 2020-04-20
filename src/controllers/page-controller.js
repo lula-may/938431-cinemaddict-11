@@ -59,15 +59,19 @@ export default class PageController {
   }
 
   render(films) {
+    let showingFilms = films.slice();
+    const renderCards = (container, cards) => {
+      cards.forEach((film) => renderCard(container, film, this._popupContainer));
+    };
+
     const renderShowMore = () => {
       render(filmsListElement, this._showMoreComponent);
 
       const onShowMoreButtonClick = () => {
         const previousCardsCount = showingCardsCount;
         showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
-        films.slice(previousCardsCount, showingCardsCount)
-        .forEach((film) => renderCard(listContainer, film, this._popupContainer));
-        if (showingCardsCount >= films.length) {
+        renderCards(listContainer, showingFilms.slice(previousCardsCount, showingCardsCount));
+        if (showingCardsCount >= showingFilms.length) {
           remove(this._showMoreComponent);
         }
       };
@@ -75,9 +79,8 @@ export default class PageController {
       this._showMoreComponent.setClickHandler(onShowMoreButtonClick);
     };
 
-    // Отрисовываю сортировку и навешиваю обработчик изменения типа сортировки
+    // Отрисовываю сортировку
     render(this._container, this._sortComponent);
-    this._sortComponent.setSortTypeChangeHandler(() => {});
 
     // Сообщение об отсутствии фильмов в системе, если их нет
     if (!films.length) {
@@ -89,13 +92,21 @@ export default class PageController {
     render(this._container, cardsListComponent);
     const listContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
     let showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-    for (let i = 0; i < showingCardsCount; i++) {
-      renderCard(listContainer, films[i], this._popupContainer);
-    }
+    renderCards(listContainer, showingFilms.slice(0, showingCardsCount));
 
     // Кнопка для открытия следующей порции карточек
     const filmsListElement = cardsListComponent.getElement().querySelector(`.films-list`);
     renderShowMore();
+
+    // Навешиваю обработчик изменения типа сортировки
+    this._sortComponent.setSortTypeChangeHandler(() => {
+      listContainer.innerHTML = ``;
+      let sortedFilms = showingFilms;
+      showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
+      renderCards(listContainer, sortedFilms.slice(0, showingCardsCount));
+      renderShowMore();
+    });
+
     // Дополнительные секции
     render(cardsListComponent.getElement(), this._topRateComponent);
     render(cardsListComponent.getElement(), this._mostCommentedComponent);
@@ -104,8 +115,8 @@ export default class PageController {
     const extraFilms = getExtraFilms(films, CARDS_AMOUNT_EXTRA);
     let count = 0;
     filmListExtraElements.forEach((listElement) => {
-      const container = listElement.querySelector(`.films-list__container`);
-      extraFilms[count].forEach((film) => renderCard(container, film, this._popupContainer));
+      const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
+      renderCards(extraFilmsContainer, extraFilms[count]);
       count++;
     });
   }
