@@ -22,7 +22,7 @@ const getSortedFilms = (films, sortType) => {
       .sort((left, right) => right.date - left.date);
       break;
 
-    case SortType.BY_RATING:
+    default:
       sortedFilms = getTopRatedFilms(films);
       break;
   }
