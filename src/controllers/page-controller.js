@@ -8,7 +8,7 @@ import SortComponent from "../components/sort.js";
 import TopRateComponent from "../components/top-rate.js";
 
 import {render, remove} from "../utils/render.js";
-import {getExtraFilms} from "../utils/components-data.js";
+import {getExtraFilms, getSortedFilms} from "../utils/components-data.js";
 
 const SHOWING_CARDS_AMOUNT_ON_START = 5;
 const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
@@ -45,6 +45,11 @@ const renderCard = (cardsListContainer, film, popupContainer) => {
   cardComponent.setClickHandlers(() => openPopup());
 };
 
+const renderCards = (container, cards, popupContainer) => {
+  cards.forEach((film) => renderCard(container, film, popupContainer));
+};
+
+
 export default class PageController {
   constructor(container, popupContainer) {
     this._container = container;
@@ -59,7 +64,24 @@ export default class PageController {
   }
 
   render(films) {
-  // Отрисовываю сортировку
+    let showingFilms = films.slice();
+
+    const renderShowMore = () => {
+      render(filmsListElement, this._showMoreComponent);
+
+      const onShowMoreButtonClick = () => {
+        const previousCardsCount = showingCardsCount;
+        showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
+        renderCards(listContainer, showingFilms.slice(previousCardsCount, showingCardsCount), this._popupContainer);
+        if (showingCardsCount >= showingFilms.length) {
+          remove(this._showMoreComponent);
+        }
+      };
+
+      this._showMoreComponent.setClickHandler(onShowMoreButtonClick);
+    };
+
+    // Отрисовываю сортировку
     render(this._container, this._sortComponent);
 
     // Сообщение об отсутствии фильмов в системе, если их нет
@@ -72,25 +94,20 @@ export default class PageController {
     render(this._container, cardsListComponent);
     const listContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
     let showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-    for (let i = 0; i < showingCardsCount; i++) {
-      renderCard(listContainer, films[i], this._popupContainer);
-    }
+    renderCards(listContainer, showingFilms.slice(0, showingCardsCount));
 
     // Кнопка для открытия следующей порции карточек
     const filmsListElement = cardsListComponent.getElement().querySelector(`.films-list`);
-    render(filmsListElement, this._showMoreComponent);
+    renderShowMore();
 
-    const onShowMoreButtonClick = () => {
-      const previousCardsCount = showingCardsCount;
-      showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
-      films.slice(previousCardsCount, showingCardsCount)
-      .forEach((film) => renderCard(listContainer, film, this._popupContainer));
-      if (showingCardsCount >= films.length) {
-        remove(this._showMoreComponent);
-      }
-    };
-
-    this._showMoreComponent.setClickHandler(onShowMoreButtonClick);
+    // Навешиваю обработчик изменения типа сортировки
+    this._sortComponent.setSortTypeChangeHandler((sortType) => {
+      listContainer.innerHTML = ``;
+      showingFilms = getSortedFilms(films, sortType);
+      showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
+      renderCards(listContainer, showingFilms.slice(0, showingCardsCount));
+      renderShowMore();
+    });
 
     // Дополнительные секции
     render(cardsListComponent.getElement(), this._topRateComponent);
@@ -100,8 +117,8 @@ export default class PageController {
     const extraFilms = getExtraFilms(films, CARDS_AMOUNT_EXTRA);
     let count = 0;
     filmListExtraElements.forEach((listElement) => {
-      const container = listElement.querySelector(`.films-list__container`);
-      extraFilms[count].forEach((film) => renderCard(container, film, this._popupContainer));
+      const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
+      renderCards(extraFilmsContainer, extraFilms[count], this._popupContainer);
       count++;
     });
   }
