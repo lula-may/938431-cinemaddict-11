@@ -207,7 +207,7 @@ const createFilm = () => {
     age: getRandomInteger(MIN_AGE, MAX_AGE) * 3,
     isInHistory: getRandomBoolean(),
     isFavorite: getRandomBoolean(),
-    isInWatchList: getRandomBoolean(),
+    isInWatchlist: getRandomBoolean(),
   };
 };
 

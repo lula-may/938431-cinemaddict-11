@@ -8,6 +8,11 @@ const getCardTemplate = (film) => {
   const descriptionPreview = description.length > MAX_DESCRIPTION_LENGTH ?
     `${description.slice(0, MAX_DESCRIPTION_LENGTH)}...`
     : description;
+
+  const isInWatchlist = film.isInWatchlist;
+  const isWatched = film.isInHistory;
+  const isFavorite = film.isFavorite;
+
   return (
     `<article class="film-card">
       <h3 class="film-card__title">${title}</h3>
@@ -21,9 +26,9 @@ const getCardTemplate = (film) => {
       <p class="film-card__description">${descriptionPreview}</p>
       <a class="film-card__comments">${comments.length} comments</a>
       <form class="film-card__controls">
-        <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
-        <button class="film-card__controls-item button film-card__controls-item--mark-as-watched">Mark as watched</button>
-        <button class="film-card__controls-item button film-card__controls-item--favorite">Mark as favorite</button>
+        <button class="film-card__controls-item${isInWatchlist ? `` : `--active`} button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
+        <button class="film-card__controls-item${isWatched ? `` : `--active`} button film-card__controls-item--mark-as-watched">Mark as watched</button>
+        <button class="film-card__controls-item${isFavorite ? `` : `--active`} button film-card__controls-item--favorite">Mark as favorite</button>
       </form>
     </article>`
   );
