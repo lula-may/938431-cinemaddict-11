@@ -18,12 +18,15 @@ const renderCards = (container, cards, popupContainer) => {
   return cards.map((film) => {
     const movieController = new MovieController(container, popupContainer);
     movieController.render(film);
+    return movieController;
   });
 };
 
 export default class PageController {
   constructor(container, popupContainer) {
     this._films = [];
+    this._showedMovieControllers = [];
+    this._showedExtraMovieControllers = [];
     this._container = container;
     this._popupContainer = popupContainer;
     this._filmList = null;
@@ -50,7 +53,8 @@ export default class PageController {
       const previousCardsCount = this._showingCardsCount;
       this._showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
       const sortedFilms = getSortedFilms(this._films, this._sortComponent.getSortType());
-      renderCards(this._filmsListContainer, sortedFilms.slice(previousCardsCount, this._showingCardsCount), this._popupContainer);
+      const newCards = renderCards(this._filmsListContainer, sortedFilms.slice(previousCardsCount, this._showingCardsCount), this._popupContainer);
+      this._showedMovieControllers = this._showedMovieControllers.concat(newCards);
       if (this._showingCardsCount >= sortedFilms.length) {
         remove(this._showMoreComponent);
       }
@@ -63,8 +67,26 @@ export default class PageController {
     this._filmsListContainer.innerHTML = ``;
     const sortedFilms = getSortedFilms(this._films, sortType);
     this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-    renderCards(this._filmsListContainer, sortedFilms.slice(0, this._showingCardsCount), this._popupContainer);
+    const newCards = renderCards(this._filmsListContainer, sortedFilms.slice(0, this._showingCardsCount), this._popupContainer);
+    this._showedMovieControllers = newCards;
     this._renderShowMoreButton();
+  }
+
+  _renderExtraFilms() {
+    const cardsListComponent = this._cardListComponent;
+
+    render(cardsListComponent.getElement(), this._topRateComponent);
+    render(cardsListComponent.getElement(), this._mostCommentedComponent);
+
+    const filmListExtraElements = cardsListComponent.getElement().querySelectorAll(`.films-list--extra`);
+    const extraFilms = getExtraFilms(this._films, CARDS_AMOUNT_EXTRA);
+    let count = 0;
+    filmListExtraElements.forEach((listElement) => {
+      const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
+      const newCards = renderCards(extraFilmsContainer, extraFilms[count], this._popupContainer);
+      this._showedExtraMovieControllers = this._showedExtraMovieControllers.concat(newCards);
+      count++;
+    });
   }
 
   render(films) {
@@ -78,28 +100,21 @@ export default class PageController {
     const cardsListComponent = this._cardListComponent;
     render(this._container, cardsListComponent);
 
-    //  Контейнер для карточек фильмов
+    //  Находим контейнер для карточек фильмов
+    // создаем контроллеры фильмов и отрисовываем карточки
+    // Запоминаем контроллеры
     this._filmsListContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
-    renderCards(this._filmsListContainer, films.slice(0, this._showingCardsCount), this._popupContainer);
+    const newCards = renderCards(this._filmsListContainer, films.slice(0, this._showingCardsCount), this._popupContainer);
+    this._showedMovieControllers = this._showedMovieControllers.concat(newCards);
 
-    // Кнопка для открытия следующей порции карточек
+    // Отрисовываем кнопку для открытия следующей порции карточек
     this._filmsList = cardsListComponent.getElement().querySelector(`.films-list`);
     this._renderShowMoreButton();
 
-    // Навешиваю обработчик изменения типа сортировки
+    // Навешиваем обработчик изменения типа сортировки
     this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
 
     // Дополнительные секции
-    render(cardsListComponent.getElement(), this._topRateComponent);
-    render(cardsListComponent.getElement(), this._mostCommentedComponent);
-
-    const filmListExtraElements = cardsListComponent.getElement().querySelectorAll(`.films-list--extra`);
-    const extraFilms = getExtraFilms(films, CARDS_AMOUNT_EXTRA);
-    let count = 0;
-    filmListExtraElements.forEach((listElement) => {
-      const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
-      renderCards(extraFilmsContainer, extraFilms[count], this._popupContainer);
-      count++;
-    });
+    this._renderExtraFilms();
   }
 }
