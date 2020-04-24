@@ -23,8 +23,12 @@ const renderCards = (container, cards, popupContainer) => {
 
 export default class PageController {
   constructor(container, popupContainer) {
+    this._films = [];
     this._container = container;
     this._popupContainer = popupContainer;
+    this._filmList = null;
+    this._filmsListContainer = null;
+    this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
 
     this._sortComponent = new SortComponent();
     this._noFilmsComponent = new NoFilmsComponent();
@@ -32,53 +36,58 @@ export default class PageController {
     this._showMoreComponent = new ShowMoreComponent();
     this._topRateComponent = new TopRateComponent();
     this._mostCommentedComponent = new MostCommentedComponent();
+
+    this._onSortTypeChange = this._onSortTypeChange.bind(this);
+  }
+
+  _renderShowMoreButton() {
+    if (this._showingCardsCount >= this._films.length) {
+      return;
+    }
+    render(this._filmsList, this._showMoreComponent);
+
+    const onShowMoreButtonClick = () => {
+      const previousCardsCount = this._showingCardsCount;
+      this._showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
+      const sortedFilms = getSortedFilms(this._films, this._sortComponent.getSortType());
+      renderCards(this._filmsListContainer, sortedFilms.slice(previousCardsCount, this._showingCardsCount), this._popupContainer);
+      if (this._showingCardsCount >= sortedFilms.length) {
+        remove(this._showMoreComponent);
+      }
+    };
+
+    this._showMoreComponent.setClickHandler(onShowMoreButtonClick);
+  }
+
+  _onSortTypeChange(sortType) {
+    this._filmsListContainer.innerHTML = ``;
+    const sortedFilms = getSortedFilms(this._films, sortType);
+    this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
+    renderCards(this._filmsListContainer, sortedFilms.slice(0, this._showingCardsCount), this._popupContainer);
+    this._renderShowMoreButton();
   }
 
   render(films) {
-    let showingFilms = films.slice();
-
-    const renderShowMore = () => {
-      render(filmsListElement, this._showMoreComponent);
-
-      const onShowMoreButtonClick = () => {
-        const previousCardsCount = showingCardsCount;
-        showingCardsCount += SHOWING_CARDS_AMOUNT_BY_BUTTON;
-        renderCards(listContainer, showingFilms.slice(previousCardsCount, showingCardsCount), this._popupContainer);
-        if (showingCardsCount >= showingFilms.length) {
-          remove(this._showMoreComponent);
-        }
-      };
-
-      this._showMoreComponent.setClickHandler(onShowMoreButtonClick);
-    };
-
-    // Отрисовываю сортировку
+    this._films = films;
     render(this._container, this._sortComponent);
 
-    // Сообщение об отсутствии фильмов в системе, если их нет
     if (!films.length) {
       render(this._container, this._noFilmsComponent);
       return;
     }
-    //  Контейнер для карточек фильмов
     const cardsListComponent = this._cardListComponent;
     render(this._container, cardsListComponent);
-    const listContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
-    let showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-    renderCards(listContainer, showingFilms.slice(0, showingCardsCount), this._popupContainer);
+
+    //  Контейнер для карточек фильмов
+    this._filmsListContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
+    renderCards(this._filmsListContainer, films.slice(0, this._showingCardsCount), this._popupContainer);
 
     // Кнопка для открытия следующей порции карточек
-    const filmsListElement = cardsListComponent.getElement().querySelector(`.films-list`);
-    renderShowMore();
+    this._filmsList = cardsListComponent.getElement().querySelector(`.films-list`);
+    this._renderShowMoreButton();
 
     // Навешиваю обработчик изменения типа сортировки
-    this._sortComponent.setSortTypeChangeHandler((sortType) => {
-      listContainer.innerHTML = ``;
-      showingFilms = getSortedFilms(films, sortType);
-      showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-      renderCards(listContainer, showingFilms.slice(0, showingCardsCount), this._popupContainer);
-      renderShowMore();
-    });
+    this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
 
     // Дополнительные секции
     render(cardsListComponent.getElement(), this._topRateComponent);
