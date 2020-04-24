@@ -30,6 +30,10 @@ export default class Sort extends AbstractComponent {
     );
   }
 
+  getSortType() {
+    return this._currentSortType;
+  }
+
   setActiveSortElement(element) {
     this._currentActiveSortElement = element;
   }
