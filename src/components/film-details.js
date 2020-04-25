@@ -1,10 +1,28 @@
 import {formatDate} from "../utils/common.js";
 import AbstractComponent from "./abstract-component.js";
 
+const ControlIdToText = {
+  [`watchlist`]: `Add to watchlist`,
+  [`watched`]: `Already watched`,
+  [`favorite`]: `Add to favorites`,
+};
+
 const getGenresMarkup = (items) => {
   return items
     .map((item) => `<span class="film-details__genre">${item}</span>`)
     .join(`\n`);
+};
+
+const getControllsMarkup = (activeControls) => {
+  const controls = Object.keys(ControlIdToText);
+  return controls.map((id) => {
+    const isActive = activeControls[id];
+
+    return (
+      `<input type="checkbox" class="film-details__control-input visually-hidden" id="${id}" name="${id}" ${isActive ? `checked` : ``}>
+      <label for="${id}" class="film-details__control-label film-details__control-label--${id}">${ControlIdToText[id]}</label>`
+    );
+  }).join(`\n`);
 };
 
 const getCommentDateText = (date) => {
@@ -53,11 +71,22 @@ const getFilmDetailsTemplate = (film) => {
     genres,
     rating,
     age,
+    isInWatchlist,
+    isFavorite,
+    isInHistory,
     comments,
   } = film;
   const formatReleaseDate = date.toLocaleString(`en-GB`, {day: `numeric`, month: `long`, year: `numeric`});
+  const activeControls = {
+    [`watchlist`]: isInWatchlist,
+    [`watched`]: isInHistory,
+    [`favorite`]: isFavorite,
+  };
+
+  const controlsMarkup = getControllsMarkup(activeControls);
   const genreMarkup = getGenresMarkup(genres);
   const commentsMarkup = getCommentsMarkup(comments);
+  const genreText = (genres.length > 1) ? `Genres` : `Genre`;
 
   return (
     `<section class="film-details">
@@ -111,7 +140,7 @@ const getFilmDetailsTemplate = (film) => {
                   <td class="film-details__cell">${country}</td>
                 </tr>
                 <tr class="film-details__row">
-                  <td class="film-details__term">Genres</td>
+                  <td class="film-details__term">${genreText}</td>
                   <td class="film-details__cell">
                     ${genreMarkup}
                   </td>
@@ -125,14 +154,7 @@ const getFilmDetailsTemplate = (film) => {
           </div>
 
           <section class="film-details__controls">
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist">
-            <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
-
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
-            <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
-
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite">
-            <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
+          ${controlsMarkup}
           </section>
         </div>
 
