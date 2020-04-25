@@ -8,7 +8,7 @@ export default class MovieController {
     this._popupContainer = popupContainer;
     this._cardComponent = null;
     this._filmDetailsComponent = null;
-    this._onDataChange = onDataChange;
+    this._onDataChange = onDataChange.bind(this);
 
     this._onEscPress = this._onEscPress.bind(this);
   }
@@ -43,7 +43,6 @@ export default class MovieController {
 
     if (oldCardComponent && oldFilmDetailsComponent) {
       replace(this._cardComponent, oldCardComponent);
-      replace(this._filmDetailsComponent, oldFilmDetailsComponent);
     } else {
       render(this._container, this._cardComponent);
     }
