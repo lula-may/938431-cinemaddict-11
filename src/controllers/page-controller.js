@@ -69,7 +69,7 @@ export default class PageController {
     const index = this._films.indexOf(oldData);
     if (index !== -1) {
       this._films = [].concat(this._films.slice(0, index), newData, this._films.slice(index + 1));
-      this._showedMovieControllers.forEach((controller) => controller.rerender(oldData, newData));
+      this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(oldData, newData));
     }
   }
 

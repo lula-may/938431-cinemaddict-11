@@ -1,5 +1,5 @@
 import {formatDate} from "../utils/common.js";
-import AbstractComponent from "./abstract-component.js";
+import AbstractSmartComponent from "./abstract-smart-component.js";
 
 const ControlIdToText = {
   [`watchlist`]: `Add to watchlist`,
@@ -202,10 +202,15 @@ const getFilmDetailsTemplate = (film) => {
   );
 };
 
-export default class FilmDetails extends AbstractComponent {
+export default class FilmDetails extends AbstractSmartComponent {
   constructor(film) {
     super();
     this._film = film;
+    this._closeClickHandler = null;
+    this._watchlistHandler = null;
+    this._watchedHandler = null;
+    this._favoriteHandler = null;
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
@@ -215,17 +220,30 @@ export default class FilmDetails extends AbstractComponent {
   setCloseButtonClickHandler(handler) {
     const closeButtonElement = this.getElement().querySelector(`.film-details__close-btn`);
     closeButtonElement.addEventListener(`click`, handler);
+    this._closeClickHandler = handler;
   }
 
-  setToWatchlistButtonClickHandler(handler) {
-    this.getElement().querySelector(`#watchlist`).addEventListener(`click`, handler);
+  setToWatchlistButtonChangeHandler(handler) {
+    this.getElement().querySelector(`#watchlist`).addEventListener(`change`, handler);
+    this._watchlistHandler = handler;
   }
 
-  setWatchedButtonClickHandler(handler) {
-    this.getElement().querySelector(`#watched`).addEventListener(`click`, handler);
+  setWatchedButtonChangeHandler(handler) {
+    this.getElement().querySelector(`#watched`).addEventListener(`change`, handler);
+    this._watchedHandler = handler;
   }
 
-  setFavoriteButtonClickHandler(handler) {
-    this.getElement().querySelector(`#favorite`).addEventListener(`click`, handler);
+  setFavoriteButtonChangeHandler(handler) {
+    this.getElement().querySelector(`#favorite`).addEventListener(`change`, handler);
+    this._favoriteHandler = handler;
+  }
+
+  _subscribeOnEvents() {
+  }
+  recoveryListeners() {
+    this.setCloseButtonClickHandler(this._closeClickHandler);
+    this.setToWatchlistButtonChangeHandler(this._watchlistHandler);
+    this.setWatchedButtonChangeHandler(this._watchedHandler);
+    this.setFavoriteButtonChangeHandler(this._favoriteHandler);
   }
 }
