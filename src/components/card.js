@@ -1,6 +1,7 @@
 import AbstractComponent from "./abstract-component.js";
 
 const MAX_DESCRIPTION_LENGTH = 140;
+
 const getCardTemplate = (film) => {
   const {title, poster, date, rating, duration, genres, description, comments} = film;
   const year = date.getFullYear();
@@ -44,6 +45,10 @@ export default class Card extends AbstractComponent {
     return getCardTemplate(this._film);
   }
 
+  get film() {
+    return this._film;
+  }
+
   setClickHandlers(handler) {
     const poster = this.getElement().querySelector(`.film-card__poster`);
     const title = this.getElement().querySelector(`.film-card__title`);
@@ -52,5 +57,20 @@ export default class Card extends AbstractComponent {
     poster.addEventListener(`click`, handler);
     title.addEventListener(`click`, handler);
     comment.addEventListener(`click`, handler);
+  }
+
+  setToWatchlistButtonClickHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--add-to-watchlist`)
+      .addEventListener(`click`, handler);
+  }
+
+  setWatchedButtonClickHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--mark-as-watched`)
+      .addEventListener(`click`, handler);
+  }
+
+  setFavoriteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--favorite`)
+      .addEventListener(`click`, handler);
   }
 }
