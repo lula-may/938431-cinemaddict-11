@@ -1,3 +1,5 @@
+import {EMOTIONS} from "../utils/const.js";
+
 const DESCRIPTION_MIN_SENTENCES = 1;
 const DESCRIPTION_MAX_SENTENCES = 5;
 const MAX_COMMENTS_AMOUNT = 5;
@@ -122,7 +124,6 @@ const COMMENT_TEXTS = [
   `The movie is touching and fun, makes you live through all these feelings and reflect on them `
 ];
 
-const EMOTIONS = [`smile`, `sleeping`, `puke`, `angry`];
 
 const getRandomInteger = (min, max) => Math.round(Math.random() * (max - min) + min);
 const getRandomBoolean = () => Math.random() < 0.5;
