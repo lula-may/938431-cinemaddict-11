@@ -32,11 +32,12 @@ export default class MovieController {
 
   _closePopup() {
     remove(this._filmDetailsComponent);
+    this._filmDetailsComponent.reset();
   }
 
   _onEscPress(evt) {
-    evt.preventDefault();
     if (evt.key === `Escape`) {
+      evt.preventDefault();
       this._closePopup();
       document.removeEventListener(`keydown`, this._onEscPress);
     }

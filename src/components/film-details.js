@@ -1,5 +1,6 @@
 import {formatDate} from "../utils/common.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
+import {createElement} from "../utils/render.js";
 
 const ControlIdToText = {
   [`watchlist`]: `Add to watchlist`,
@@ -210,6 +211,8 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._watchlistHandler = null;
     this._watchedHandler = null;
     this._favoriteHandler = null;
+    this._comments = this._film.comments;
+    this._newComment = {};
     this._subscribeOnEvents();
   }
 
@@ -238,12 +241,55 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._favoriteHandler = handler;
   }
 
-  _subscribeOnEvents() {
+  _renderCommentEmoji(emotion) {
+    const template = `<img src="images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">`;
+    const emojiContainer = this.getElement().querySelector(`.film-details__add-emoji-label`);
+    emojiContainer.innerHTML = ``;
+    const emojiElement = createElement(template);
+    emojiContainer.append(emojiElement);
   }
+
+  _subscribeOnEvents() {
+    const element = this.getElement();
+
+    // Навешиваем обработчик клика по эмоджи
+    element.querySelector(`.film-details__emoji-list`).addEventListener(`click`, (evt) => {
+      if (evt.target.tagName !== `INPUT`) {
+        return;
+      }
+      const emotion = evt.target.value;
+      this._renderCommentEmoji(emotion);
+      this._newComment.emotion = emotion;
+    });
+
+    // Обработчик ввода текста комментария
+    element.querySelector(`.film-details__comment-input`).addEventListener(`change`, (evt) => {
+      this._newComment.text = evt.target.value;
+    });
+
+    // Обработчик нажатия Ctrl/Command + Enter для отправки комментария
+    element.querySelector(`.film-details__inner`).addEventListener(`keydown`, (evt) => {
+      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment) {
+        return;
+      }
+      this._newComment.date = new Date();
+      this._comments.push(this._newComment);
+      this._newComment = {};
+      this.rerender();
+    });
+  }
+
   recoveryListeners() {
     this.setCloseButtonClickHandler(this._closeClickHandler);
     this.setToWatchlistButtonChangeHandler(this._watchlistHandler);
     this.setWatchedButtonChangeHandler(this._watchedHandler);
     this.setFavoriteButtonChangeHandler(this._favoriteHandler);
+    this._subscribeOnEvents();
+  }
+
+  reset() {
+    this._comments = this._film.comments;
+    this._newComment = {};
+    this.rerender();
   }
 }
