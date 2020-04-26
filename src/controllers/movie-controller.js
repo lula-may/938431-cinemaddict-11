@@ -8,17 +8,20 @@ const Mode = {
 };
 
 export default class MovieController {
-  constructor(container, popupContainer, onDataChange) {
+  constructor(container, popupContainer, onDataChange, onViewChange) {
     this._container = container;
     this._popupContainer = popupContainer;
     this._cardComponent = null;
     this._filmDetailsComponent = null;
-    this._onDataChange = onDataChange.bind(this);
+    this._mode = Mode.DEFAULT;
 
+    this._onDataChange = onDataChange;
+    this._onViewChange = onViewChange;
     this._onEscPress = this._onEscPress.bind(this);
   }
 
   _openPopup(movie) {
+    this._onViewChange();
     render(this._popupContainer, this._filmDetailsComponent);
     this._mode = Mode.POPUP;
     this._filmDetailsComponent.setCloseButtonClickHandler(() => {
@@ -33,6 +36,7 @@ export default class MovieController {
   _closePopup() {
     remove(this._filmDetailsComponent);
     this._filmDetailsComponent.reset();
+    this._mode = Mode.DEFAULT;
   }
 
   _onEscPress(evt) {
@@ -96,5 +100,12 @@ export default class MovieController {
       return;
     }
     this.render(newData);
+  }
+
+  setDefaultView() {
+    if (this._mode === Mode.DEFAULT) {
+      return;
+    }
+    this._closePopup();
   }
 }

@@ -1,6 +1,7 @@
 import {formatDate} from "../utils/common.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import {createElement} from "../utils/render.js";
+import {EMOTIONS} from "../utils/const.js";
 
 const ControlIdToText = {
   [`watchlist`]: `Add to watchlist`,
@@ -39,13 +40,14 @@ const getCommentsMarkup = (items) => {
     map((item) => {
       const {emotion, date, text, author} = item;
       const commentDate = getCommentDateText(date);
+      const commentText = (!text) ? `` : text;
       return (
         `<li class="film-details__comment">
           <span class="film-details__comment-emoji">
             <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
           </span>
           <div>
-            <p class="film-details__comment-text">${text}</p>
+            <p class="film-details__comment-text">${commentText}</p>
             <p class="film-details__comment-info">
               <span class="film-details__comment-author">${author}</span>
               <span class="film-details__comment-day">${commentDate}</span>
@@ -57,6 +59,18 @@ const getCommentsMarkup = (items) => {
     })
     .join(`\n`);
 };
+
+const getEmojiListMarkup = () => {
+  return EMOTIONS.map((emotion) => {
+    return (
+      `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}">
+      <label class="film-details__emoji-label" for="emoji-${emotion}">
+        <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
+      </label>`
+    );
+  }).join(`\n`);
+};
+
 const getFilmDetailsTemplate = (film) => {
   const {
     title,
@@ -85,9 +99,10 @@ const getFilmDetailsTemplate = (film) => {
   };
 
   const controlsMarkup = getControllsMarkup(activeControls);
+  const genreText = (genres.length > 1) ? `Genres` : `Genre`;
   const genreMarkup = getGenresMarkup(genres);
   const commentsMarkup = getCommentsMarkup(comments);
-  const genreText = (genres.length > 1) ? `Genres` : `Genre`;
+  const emojiListMarkup = getEmojiListMarkup();
 
   return (
     `<section class="film-details">
@@ -175,25 +190,7 @@ const getFilmDetailsTemplate = (film) => {
               </label>
 
               <div class="film-details__emoji-list">
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
-                <label class="film-details__emoji-label" for="emoji-smile">
-                  <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
-                </label>
-
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
-                <label class="film-details__emoji-label" for="emoji-sleeping">
-                  <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
-                </label>
-
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
-                <label class="film-details__emoji-label" for="emoji-puke">
-                  <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
-                </label>
-
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
-                <label class="film-details__emoji-label" for="emoji-angry">
-                  <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
-                </label>
+              ${emojiListMarkup}
               </div>
             </div>
           </section>
