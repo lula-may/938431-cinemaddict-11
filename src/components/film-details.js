@@ -266,7 +266,7 @@ export default class FilmDetails extends AbstractSmartComponent {
 
     // Обработчик нажатия Ctrl/Command + Enter для отправки комментария
     element.querySelector(`.film-details__inner`).addEventListener(`keydown`, (evt) => {
-      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment) {
+      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
         return;
       }
       this._newComment.date = new Date();
