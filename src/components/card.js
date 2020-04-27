@@ -1,6 +1,7 @@
 import AbstractComponent from "./abstract-component.js";
 
 const MAX_DESCRIPTION_LENGTH = 140;
+
 const getCardTemplate = (film) => {
   const {title, poster, date, rating, duration, genres, description, comments} = film;
   const year = date.getFullYear();
@@ -8,6 +9,11 @@ const getCardTemplate = (film) => {
   const descriptionPreview = description.length > MAX_DESCRIPTION_LENGTH ?
     `${description.slice(0, MAX_DESCRIPTION_LENGTH)}...`
     : description;
+
+  const isInWatchlist = film.isInWatchlist;
+  const isWatched = film.isInHistory;
+  const isFavorite = film.isFavorite;
+
   return (
     `<article class="film-card">
       <h3 class="film-card__title">${title}</h3>
@@ -21,9 +27,9 @@ const getCardTemplate = (film) => {
       <p class="film-card__description">${descriptionPreview}</p>
       <a class="film-card__comments">${comments.length} comments</a>
       <form class="film-card__controls">
-        <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
-        <button class="film-card__controls-item button film-card__controls-item--mark-as-watched">Mark as watched</button>
-        <button class="film-card__controls-item button film-card__controls-item--favorite">Mark as favorite</button>
+        <button class="film-card__controls-item${isInWatchlist ? `` : `--active`} button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
+        <button class="film-card__controls-item${isWatched ? `` : `--active`} button film-card__controls-item--mark-as-watched">Mark as watched</button>
+        <button class="film-card__controls-item${isFavorite ? `` : `--active`} button film-card__controls-item--favorite">Mark as favorite</button>
       </form>
     </article>`
   );
@@ -39,6 +45,10 @@ export default class Card extends AbstractComponent {
     return getCardTemplate(this._film);
   }
 
+  get film() {
+    return this._film;
+  }
+
   setClickHandlers(handler) {
     const poster = this.getElement().querySelector(`.film-card__poster`);
     const title = this.getElement().querySelector(`.film-card__title`);
@@ -47,5 +57,20 @@ export default class Card extends AbstractComponent {
     poster.addEventListener(`click`, handler);
     title.addEventListener(`click`, handler);
     comment.addEventListener(`click`, handler);
+  }
+
+  setToWatchlistButtonClickHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--add-to-watchlist`)
+      .addEventListener(`click`, handler);
+  }
+
+  setWatchedButtonClickHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--mark-as-watched`)
+      .addEventListener(`click`, handler);
+  }
+
+  setFavoriteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--favorite`)
+      .addEventListener(`click`, handler);
   }
 }
