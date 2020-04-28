@@ -1,10 +1,12 @@
 import AbstractComponent from "./abstract-component.js";
+import {formatRunTime} from "../utils/common.js";
 
 const MAX_DESCRIPTION_LENGTH = 140;
 
 const getCardTemplate = (film) => {
   const {title, poster, date, rating, duration, genres, description, comments} = film;
   const year = date.getFullYear();
+  const runTime = formatRunTime(duration);
   const genre = genres.join(` `);
   const descriptionPreview = description.length > MAX_DESCRIPTION_LENGTH ?
     `${description.slice(0, MAX_DESCRIPTION_LENGTH)}...`
@@ -20,7 +22,7 @@ const getCardTemplate = (film) => {
       <p class="film-card__rating">${rating}</p>
       <p class="film-card__info">
         <span class="film-card__year">${year}</span>
-        <span class="film-card__duration">${duration}</span>
+        <span class="film-card__duration">${runTime}</span>
         <span class="film-card__genre">${genre}</span>
       </p>
       <img src="./images/posters/${poster}" alt="" class="film-card__poster">

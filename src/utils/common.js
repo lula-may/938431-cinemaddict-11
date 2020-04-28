@@ -1,15 +1,22 @@
-const castTimeFormat = (value) => {
-  return value < 10 ? `0${value}` : String(value);
-};
+import moment from "moment";
 
 const formatDate = (date) => {
-  const year = date.getFullYear();
-  const month = date.getMonth();
-  const day = date.getDate();
-  const hours = castTimeFormat(date.getHours());
-  const minutes = castTimeFormat(date.getMinutes());
-  return ` ${year}/${month}/${day} ${hours}:${minutes}`;
+  return moment(date).format(`YYYY/MM/DD hh:mm`);
 };
 
+const formatReleaseDate = (date) => {
+  return moment(date).format(`DD MMMM YYYY`);
+};
 
-export {formatDate};
+const formatRunTime = (duration) => {
+  const runTime = moment.duration(duration, `minutes`);
+  const hours = runTime.hours();
+  const minutes = runTime.minutes();
+  return `${hours}h ${minutes}m`;
+};
+
+const humanizeDate = (date) => {
+  return moment(date).fromNow();
+};
+
+export {formatDate, formatReleaseDate, formatRunTime, humanizeDate};
