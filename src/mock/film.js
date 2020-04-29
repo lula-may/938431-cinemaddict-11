@@ -12,7 +12,6 @@ const MIN_FILM_LENGTH = 60;
 const MAX_FILM_LENGTH = 180;
 const MIN_AGE = 1;
 const MAX_AGE = 7;
-const HOUR = 60;
 const MONTHS_AMOUNT = 12;
 const DAYS_AMOUNT = 31;
 const FILM_NAMES = [
@@ -154,13 +153,6 @@ const getRandomCommentDate = () => {
   return date;
 };
 
-const getRandomDuration = () => {
-  const duration = getRandomInteger(MIN_FILM_LENGTH, MAX_FILM_LENGTH);
-  const hours = Math.trunc(duration / HOUR);
-  const minutes = duration % HOUR;
-  return `${hours}h ${minutes}m`;
-};
-
 const getFilmPoster = (name) => {
   const path = name.split(` `).map((word) => word.toLowerCase()).join(`-`);
   return `${path}.jpg`;
@@ -199,7 +191,7 @@ const createFilm = () => {
     writers: getRandomSubList(WRITERS, getRandomInteger(1, MAX_WRITERS)).join(`, `),
     actors: getRandomSubList(ACTORS, getRandomInteger(MIN_ACTORS, MAX_ACTORS)).join(`, `),
     date: getRandomReleaseDate(),
-    duration: getRandomDuration(),
+    duration: getRandomInteger(MIN_FILM_LENGTH, MAX_FILM_LENGTH),
     country: getRandomItem(COUNTRIES),
     genres: getRandomSubList(GENRES, getRandomInteger(1, MAX_WRITERS)),
     description: getFilmDescription(),
