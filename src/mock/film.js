@@ -184,6 +184,7 @@ const getFilmComments = () => {
 const createFilm = () => {
   const title = getRandomItem(FILM_NAMES);
   return {
+    id: String(new Date() + Math.random()),
     title,
     originalTitle: title,
     poster: FilmToPosterFile[title] || getFilmPoster(title),
