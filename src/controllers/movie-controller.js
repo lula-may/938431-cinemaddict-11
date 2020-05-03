@@ -105,6 +105,12 @@ export default class MovieController {
     this.render(newData, this._comments);
   }
 
+  destroy() {
+    remove(this._cardComponent);
+    remove(this._filmDetailsComponent);
+    document.removeEventListener(`keydown`, this._onEscPress);
+  }
+
   setDefaultView() {
     if (this._mode === Mode.DEFAULT) {
       return;

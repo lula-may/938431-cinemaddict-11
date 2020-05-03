@@ -5,6 +5,7 @@ export default class Movies {
   constructor() {
     this._movies = [];
     this._dataChangeHandlers = [];
+    this._filterChangeHandlers = [];
     this._activeFilterType = FilterType.ALL;
   }
 
@@ -37,9 +38,13 @@ export default class Movies {
     this._dataChangeHandlers.push(handler);
   }
 
+  setFilterChangeHandler(handler) {
+    this._filterChangeHandlers.push(handler);
+  }
+
   setFilter(filterType) {
     this._activeFilterType = filterType;
-    this._callHandlers(this._dataChangeHandlers);
+    this._callHandlers(this._filterChangeHandlers);
   }
 
   _callHandlers(handlers) {
