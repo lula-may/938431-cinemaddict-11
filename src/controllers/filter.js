@@ -45,8 +45,12 @@ export default class Filter {
   }
 
   _onFilterChange(filterType) {
+    if (filterType === this._activeFilterType) {
+      return;
+    }
     this._moviesModel.setFilter(filterType);
     this._activeFilterType = filterType;
+    this._filterComponent.updateActiveFilter(filterType);
   }
 
   _onDataChange() {

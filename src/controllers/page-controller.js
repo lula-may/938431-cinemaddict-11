@@ -2,7 +2,7 @@ import CardsListComponent from "../components/cards-list.js";
 import MostCommentedComponent from "../components/most-commented.js";
 import NoFilmsComponent from "../components/no-films.js";
 import ShowMoreComponent from "../components/show-more.js";
-import SortComponent from "../components/sort.js";
+import SortComponent, {SortType} from "../components/sort.js";
 import TopRateComponent from "../components/top-rate.js";
 import MovieController from "./movie-controller.js";
 
@@ -126,7 +126,9 @@ export default class PageController {
   }
 
   _onFilterChange() {
-    this._updateMovies(SHOWING_CARDS_AMOUNT_ON_START);
+    this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
+    this._sortComponent.setSortType(SortType.DEFAULT);
+    this._updateMovies(this._showingCardsCount);
   }
 
   render() {
