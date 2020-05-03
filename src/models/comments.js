@@ -4,7 +4,7 @@ export default class Comments {
     this._dataChangeHandlers = [];
   }
 
-  getAllComments() {
+  getComments() {
     return this._comments;
   }
 

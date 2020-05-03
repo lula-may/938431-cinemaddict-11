@@ -98,11 +98,11 @@ export default class MovieController {
     this._setPopupControlHandlers(movie);
   }
 
-  rerender(oldData, newData) {
-    if (this._cardComponent.film !== oldData) {
+  rerender(id, newData) {
+    if (this._cardComponent.film.id !== id) {
       return;
     }
-    this.render(newData);
+    this.render(newData, this._comments);
   }
 
   setDefaultView() {
