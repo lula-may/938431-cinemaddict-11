@@ -105,7 +105,6 @@ export const ACTORS = [
   `Jennifer Lawrence`
 ];
 
-
 export const getRandomInteger = (min, max) => Math.round(Math.random() * (max - min) + min);
 const getRandomBoolean = () => Math.random() < 0.5;
 
@@ -129,7 +128,6 @@ const getRandomReleaseDate = () => {
   return new Date(year, month, day);
 };
 
-
 const getFilmPoster = (name) => {
   const path = name.split(` `).map((word) => word.toLowerCase()).join(`-`);
   return `${path}.jpg`;
@@ -142,7 +140,6 @@ const getFilmDescription = () => {
   const descriptions = getRandomSubList(sentences, descriptionLength);
   return descriptions.join(` `);
 };
-
 
 const createFilm = () => {
   const title = getRandomItem(FILM_NAMES);

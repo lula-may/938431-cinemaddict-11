@@ -23,9 +23,14 @@ export default class Filter extends AbstractComponent {
   constructor(filters) {
     super();
     this._filters = filters;
+    this._filterChangeHandlers = [];
   }
 
   getTemplate() {
     return getFilterTemplate(this._filters);
+  }
+
+  setFilterChangeHandler(handler) {
+    this._filterChangeHandlers.push(handler);
   }
 }

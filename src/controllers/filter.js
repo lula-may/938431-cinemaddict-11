@@ -1,7 +1,7 @@
-import FilterComponent from "../utils/filter.js";
+import FilterComponent from "../components/filter.js";
 import {FilterType} from "../const.js";
 import {getFilmsByFilter} from "../utils/filter.js";
-import {render, replace} from "../utils/render.js";
+import {render, replace, RenderPosition} from "../utils/render.js";
 
 export default class Filter {
   constructor(container, moviesModel) {
@@ -25,7 +25,7 @@ export default class Filter {
     if (oldComponent) {
       replace(this._filterComponent, oldComponent);
     } else {
-      render(this._container, this._filterComponent);
+      render(this._container, this._filterComponent, RenderPosition.AFTERBEGIN);
     }
   }
 
@@ -40,7 +40,6 @@ export default class Filter {
         title: filter,
         count: getFilmsByFilter(filter, films).length,
         checked: filter === this._activeFilterType,
-
       };
     });
   }

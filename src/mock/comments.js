@@ -1,5 +1,5 @@
 import {getRandomInteger, getRandomItem, ACTORS} from "./film.js";
-import {EMOTIONS} from "../utils/const.js";
+import {EMOTIONS} from "../const.js";
 
 const MAX_COMMENTS_AMOUNT = 5;
 

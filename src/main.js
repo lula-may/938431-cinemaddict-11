@@ -1,5 +1,5 @@
 import CommentsModel from "./models/comments.js";
-import FilterComponent from "./components/filter.js";
+import FilterController from "./controllers/filter.js";
 import FooterStatComponent from "./components/footer-stat.js";
 import MoviesModel from "./models/movies.js";
 import PageController from "./controllers/page-controller.js";
@@ -29,8 +29,9 @@ render(pageHeaderElement, new UserProfileComponent(userLevel));
 // Отрисовываю навигацию с фильтрами
 const siteNavComponent = new SiteNavComponent();
 render(pageMainElement, siteNavComponent);
-render(siteNavComponent.getElement(), new FilterComponent(films), RenderPosition.AFTERBEGIN);
 
+const filterController = new FilterController(siteNavComponent.getElement(), moviesModel);
+filterController.render();
 // Отрисовываю основное содержимое страницы
 const pageController = new PageController(pageMainElement, bodyElement, moviesModel, commentsModel);
 pageController.render();
