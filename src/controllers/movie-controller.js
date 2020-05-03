@@ -14,6 +14,7 @@ export default class MovieController {
     this._cardComponent = null;
     this._filmDetailsComponent = null;
     this._mode = Mode.DEFAULT;
+    this._comments = [];
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
@@ -62,13 +63,15 @@ export default class MovieController {
 
   }
 
-  render(movie) {
-    // debugger;
+  render(movie, comments) {
+    this._comments = comments;
     const oldCardComponent = this._cardComponent;
     const oldFilmDetailsComponent = this._filmDetailsComponent;
-
+    const filmComments = movie.comments.map((id) => {
+      return comments.find((item) => item.id === id);
+    });
     this._cardComponent = new CardComponent(movie);
-    this._filmDetailsComponent = new FilmDetailsComponent(movie);
+    this._filmDetailsComponent = new FilmDetailsComponent(movie, filmComments);
 
     if (oldCardComponent && oldFilmDetailsComponent) {
       replace(this._cardComponent, oldCardComponent);

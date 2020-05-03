@@ -63,7 +63,7 @@ const getEmojiListMarkup = () => {
   }).join(`\n`);
 };
 
-const getFilmDetailsTemplate = (film) => {
+const getFilmDetailsTemplate = (film, comments) => {
   const {
     title,
     originalTitle,
@@ -81,7 +81,6 @@ const getFilmDetailsTemplate = (film) => {
     isInWatchlist,
     isFavorite,
     isInHistory,
-    comments,
   } = film;
   const releaseDate = formatReleaseDate(date);
   const runTime = formatRunTime(duration);
@@ -194,20 +193,20 @@ const getFilmDetailsTemplate = (film) => {
 };
 
 export default class FilmDetails extends AbstractSmartComponent {
-  constructor(film) {
+  constructor(film, comments) {
     super();
     this._film = film;
+    this._comments = comments;
     this._closeClickHandler = null;
     this._watchlistHandler = null;
     this._watchedHandler = null;
     this._favoriteHandler = null;
-    this._comments = this._film.comments;
     this._newComment = {};
     this._subscribeOnEvents();
   }
 
   getTemplate() {
-    return getFilmDetailsTemplate(this._film);
+    return getFilmDetailsTemplate(this._film, this._comments);
   }
 
   setCloseButtonClickHandler(handler) {

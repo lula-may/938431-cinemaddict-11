@@ -4,11 +4,13 @@ import PageController from "./controllers/page-controller.js";
 import SiteNavComponent from "./components/site-nav.js";
 import UserProfileComponent from "./components/user-profile.js";
 import {generateFilms} from "./mock/film.js";
+import {getComments} from "./mock/comments.js";
 import {getUserLevel} from "./utils/components-data.js";
 import {RenderPosition, render} from "./utils/render.js";
 
 const FILMS_AMOUNT = 20;
 const films = generateFilms(FILMS_AMOUNT);
+const comments = getComments();
 const userLevel = getUserLevel(films);
 const bodyElement = document.querySelector(`body`);
 const pageHeaderElement = bodyElement.querySelector(`.header`);
@@ -23,7 +25,7 @@ render(siteNavComponent.getElement(), new FilterComponent(films), RenderPosition
 
 // Отрисовываю основное содержимое страницы
 const pageController = new PageController(pageMainElement, bodyElement);
-pageController.render(films);
+pageController.render(films, comments);
 
 // Статистика в футере
 const footerStatisticsElement = bodyElement.querySelector(`.footer__statistics`);
