@@ -4,7 +4,7 @@ export default class Movies {
     this._dataChangeHandlers = [];
   }
 
-  getMovies() {
+  getAllMovies() {
     return this._movies;
   }
 

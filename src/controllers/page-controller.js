@@ -60,7 +60,7 @@ export default class PageController {
   }
 
   _renderShowMoreButton() {
-    if (this._showingCardsCount >= this._moviesModel.getMovies().length) {
+    if (this._showingCardsCount >= this._moviesModel.getAllMovies().length) {
       return;
     }
     render(this._filmsList, this._showMoreComponent);
@@ -80,7 +80,7 @@ export default class PageController {
 
   _onSortTypeChange(sortType) {
     this._filmsListContainer.innerHTML = ``;
-    const sortedFilms = getSortedFilms(this._moviesModel.getMovies(), sortType);
+    const sortedFilms = getSortedFilms(this._moviesModel.getAllMovies(), sortType);
     this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
     const newCards = renderCards(this._filmsListContainer, sortedFilms.slice(0, this._showingCardsCount),
         this._commentsModel.getComments(), this._popupContainer, this._onDataChange, this._onViewChange);
@@ -95,7 +95,7 @@ export default class PageController {
     render(cardsListComponent.getElement(), this._mostCommentedComponent);
 
     const filmListExtraElements = cardsListComponent.getElement().querySelectorAll(`.films-list--extra`);
-    const extraFilms = getExtraFilms(this._moviesModel.getMovies(), CARDS_AMOUNT_EXTRA);
+    const extraFilms = getExtraFilms(this._moviesModel.getAllMovies(), CARDS_AMOUNT_EXTRA);
     let count = 0;
     filmListExtraElements.forEach((listElement) => {
       const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
@@ -107,7 +107,7 @@ export default class PageController {
   }
 
   render() {
-    const films = this._moviesModel.getMovies();
+    const films = this._moviesModel.getAllMovies();
     const comments = this._commentsModel.getComments();
     render(this._container, this._sortComponent);
 

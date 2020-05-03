@@ -1,7 +1,7 @@
 import {formatReleaseDate, humanizeDate, formatRunTime} from "../utils/common.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import {createElement} from "../utils/render.js";
-import {EMOTIONS} from "../utils/const.js";
+import {EMOTIONS} from "../const.js";
 
 const ControlIdToText = {
   [`watchlist`]: `Add to watchlist`,
