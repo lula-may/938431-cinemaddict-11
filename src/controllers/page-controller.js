@@ -84,9 +84,15 @@ export default class PageController {
   _onSortTypeChange(sortType) {
     this._removeMovies();
     this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-    const sortedFilms = getSortedFilms(this._moviesModel.getAllMovies(), sortType).slice(0, this._showingCardsCount);
+    const sortedFilms = getSortedFilms(this._moviesModel.getMovies(), sortType).slice(0, this._showingCardsCount);
     this._renderMovies(sortedFilms);
     this._renderShowMoreButton();
+  }
+
+  _onFilterChange() {
+    this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
+    this._sortComponent.setSortType(SortType.DEFAULT);
+    this._updateMovies(this._showingCardsCount);
   }
 
   _renderExtraFilms() {
@@ -113,6 +119,8 @@ export default class PageController {
   }
 
   _renderMovies(movies) {
+    // создаем контроллеры фильмов и отрисовываем карточки
+    // Запоминаем контроллеры
     const newCards = renderCards(this._filmsListContainer, movies.slice(0, this._showingCardsCount), this._commentsModel.getComments(),
         this._popupContainer, this._onDataChange, this._onViewChange);
     this._showedMovieControllers = this._showedMovieControllers.concat(newCards);
@@ -123,12 +131,6 @@ export default class PageController {
     this._removeMovies();
     this._renderMovies(this._moviesModel.getMovies().slice(0, count));
     this._renderShowMoreButton();
-  }
-
-  _onFilterChange() {
-    this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-    this._sortComponent.setSortType(SortType.DEFAULT);
-    this._updateMovies(this._showingCardsCount);
   }
 
   render() {
@@ -143,8 +145,6 @@ export default class PageController {
     render(this._container, cardsListComponent);
 
     //  Находим контейнер для карточек фильмов
-    // создаем контроллеры фильмов и отрисовываем карточки
-    // Запоминаем контроллеры
     this._filmsListContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
     this._renderMovies(films.slice(0, this._showingCardsCount));
 

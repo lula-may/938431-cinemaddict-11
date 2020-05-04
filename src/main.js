@@ -31,6 +31,7 @@ const siteNavComponent = new SiteNavComponent();
 render(pageMainElement, siteNavComponent);
 
 const filterController = new FilterController(siteNavComponent.getElement(), moviesModel);
+debugger;
 filterController.render();
 // Отрисовываю основное содержимое страницы
 const pageController = new PageController(pageMainElement, bodyElement, moviesModel, commentsModel);

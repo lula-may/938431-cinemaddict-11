@@ -9,7 +9,8 @@ const getFilterText = (filterType) => {
   if (filterType === FilterType.ALL) {
     return `All movies`;
   } else {
-    return filterType;
+    const firstLetter = filterType.slice(0, 1).toUpperCase();
+    return firstLetter + filterType.slice(1);
   }
 };
 

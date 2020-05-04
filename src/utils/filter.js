@@ -1,8 +1,10 @@
+import {FilterType} from "../const.js";
+
 const FilterToFlag = {
-  [`All`]: ``,
-  [`Watchlist`]: `isInWatchlist`,
-  [`History`]: `isInHistory`,
-  [`Favorites`]: `isFavorite`
+  [FilterType.ALL]: ``,
+  [FilterType.WATCHLIST]: `isInWatchlist`,
+  [FilterType.HISTORY]: `isInHistory`,
+  [FilterType.FAVORITES]: `isFavorite`
 };
 
 const getFilmsByFilter = (filter, films) => {
