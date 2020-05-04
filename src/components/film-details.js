@@ -1,4 +1,4 @@
-import {formatReleaseDate, humanizeDate, formatRunTime} from "../utils/common.js";
+import {formatReleaseDate, formatRunTime} from "../utils/common.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import {createElement} from "../utils/render.js";
 import {EMOTIONS} from "../const.js";
@@ -27,31 +27,6 @@ const getControllsMarkup = (activeControls) => {
   }).join(`\n`);
 };
 
-const getCommentsMarkup = (items) => {
-  return items.
-    map((item) => {
-      const {emotion, date, text, author} = item;
-      const commentDate = humanizeDate(date);
-      const commentText = (!text) ? `` : text;
-      return (
-        `<li class="film-details__comment">
-          <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
-          </span>
-          <div>
-            <p class="film-details__comment-text">${commentText}</p>
-            <p class="film-details__comment-info">
-              <span class="film-details__comment-author">${author}</span>
-              <span class="film-details__comment-day">${commentDate}</span>
-              <button class="film-details__comment-delete">Delete</button>
-            </p>
-          </div>
-        </li>`
-      );
-    })
-    .join(`\n`);
-};
-
 const getEmojiListMarkup = () => {
   return EMOTIONS.map((emotion) => {
     return (
@@ -63,140 +38,11 @@ const getEmojiListMarkup = () => {
   }).join(`\n`);
 };
 
-const getFilmDetailsTemplate = (film, comments) => {
-  const {
-    title,
-    originalTitle,
-    poster,
-    director,
-    writers,
-    actors,
-    date,
-    duration,
-    description,
-    country,
-    genres,
-    rating,
-    age,
-    isInWatchlist,
-    isFavorite,
-    isInHistory,
-  } = film;
-  const releaseDate = formatReleaseDate(date);
-  const runTime = formatRunTime(duration);
-  const activeControls = {
-    [`watchlist`]: isInWatchlist,
-    [`watched`]: isInHistory,
-    [`favorite`]: isFavorite,
-  };
-
-  const controlsMarkup = getControllsMarkup(activeControls);
-  const genreText = (genres.length > 1) ? `Genres` : `Genre`;
-  const genreMarkup = getGenresMarkup(genres);
-  const commentsMarkup = getCommentsMarkup(comments);
-  const emojiListMarkup = getEmojiListMarkup();
-
-  return (
-    `<section class="film-details">
-      <form class="film-details__inner" action="" method="get">
-        <div class="form-details__top-container">
-          <div class="film-details__close">
-            <button class="film-details__close-btn" type="button">close</button>
-          </div>
-          <div class="film-details__info-wrap">
-            <div class="film-details__poster">
-              <img class="film-details__poster-img" src="./images/posters/${poster}" alt="">
-
-              <p class="film-details__age">${age}+</p>
-            </div>
-
-            <div class="film-details__info">
-              <div class="film-details__info-head">
-                <div class="film-details__title-wrap">
-                  <h3 class="film-details__title">${title}</h3>
-                  <p class="film-details__title-original">Original: ${originalTitle}</p>
-                </div>
-
-                <div class="film-details__rating">
-                  <p class="film-details__total-rating">${rating}</p>
-                </div>
-              </div>
-
-              <table class="film-details__table">
-                <tr class="film-details__row">
-                  <td class="film-details__term">Director</td>
-                  <td class="film-details__cell">${director}</td>
-                </tr>
-                <tr class="film-details__row">
-                  <td class="film-details__term">Writers</td>
-                  <td class="film-details__cell">${writers}</td>
-                </tr>
-                <tr class="film-details__row">
-                  <td class="film-details__term">Actors</td>
-                  <td class="film-details__cell">${actors}</td>
-                </tr>
-                <tr class="film-details__row">
-                  <td class="film-details__term">Release Date</td>
-                  <td class="film-details__cell">${releaseDate}</td>
-                </tr>
-                <tr class="film-details__row">
-                  <td class="film-details__term">Runtime</td>
-                  <td class="film-details__cell">${runTime}</td>
-                </tr>
-                <tr class="film-details__row">
-                  <td class="film-details__term">Country</td>
-                  <td class="film-details__cell">${country}</td>
-                </tr>
-                <tr class="film-details__row">
-                  <td class="film-details__term">${genreText}</td>
-                  <td class="film-details__cell">
-                    ${genreMarkup}
-                  </td>
-                </tr>
-              </table>
-
-              <p class="film-details__film-description">
-                ${description}
-              </p>
-            </div>
-          </div>
-
-          <section class="film-details__controls">
-          ${controlsMarkup}
-          </section>
-        </div>
-
-        <div class="form-details__bottom-container">
-          <section class="film-details__comments-wrap">
-            <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
-
-            <ul class="film-details__comments-list">
-            ${commentsMarkup}
-            </ul>
-
-            <div class="film-details__new-comment">
-              <div for="add-emoji" class="film-details__add-emoji-label"></div>
-
-              <label class="film-details__comment-label">
-                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
-              </label>
-
-              <div class="film-details__emoji-list">
-              ${emojiListMarkup}
-              </div>
-            </div>
-          </section>
-        </div>
-      </form>
-    </section>`
-  );
-};
-
 export default class FilmDetails extends AbstractSmartComponent {
-  constructor(film, comments) {
+  constructor(film, commentComponents) {
     super();
     this._film = film;
-    this._comments = comments;
+    this._commentComponents = commentComponents;
     this._closeClickHandler = null;
     this._watchlistHandler = null;
     this._watchedHandler = null;
@@ -206,7 +52,136 @@ export default class FilmDetails extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return getFilmDetailsTemplate(this._film, this._comments);
+    const {
+      title,
+      originalTitle,
+      poster,
+      director,
+      writers,
+      actors,
+      date,
+      duration,
+      description,
+      country,
+      genres,
+      rating,
+      age,
+      isInWatchlist,
+      isFavorite,
+      isInHistory,
+    } = this._film;
+    const releaseDate = formatReleaseDate(date);
+    const runTime = formatRunTime(duration);
+    const activeControls = {
+      [`watchlist`]: isInWatchlist,
+      [`watched`]: isInHistory,
+      [`favorite`]: isFavorite,
+    };
+
+    const controlsMarkup = getControllsMarkup(activeControls);
+    const genreText = (genres.length > 1) ? `Genres` : `Genre`;
+    const genreMarkup = getGenresMarkup(genres);
+    const commentsAmount = this._commentComponents.length;
+    const commentsMarkup = this._commentComponents.map((component) => component.getTemplate()).join(`\n`);
+    const emojiListMarkup = getEmojiListMarkup();
+
+    return (
+      `<section class="film-details">
+        <form class="film-details__inner" action="" method="get">
+          <div class="form-details__top-container">
+            <div class="film-details__close">
+              <button class="film-details__close-btn" type="button">close</button>
+            </div>
+            <div class="film-details__info-wrap">
+              <div class="film-details__poster">
+                <img class="film-details__poster-img" src="./images/posters/${poster}" alt="">
+
+                <p class="film-details__age">${age}+</p>
+              </div>
+
+              <div class="film-details__info">
+                <div class="film-details__info-head">
+                  <div class="film-details__title-wrap">
+                    <h3 class="film-details__title">${title}</h3>
+                    <p class="film-details__title-original">Original: ${originalTitle}</p>
+                  </div>
+
+                  <div class="film-details__rating">
+                    <p class="film-details__total-rating">${rating}</p>
+                  </div>
+                </div>
+
+                <table class="film-details__table">
+                  <tr class="film-details__row">
+                    <td class="film-details__term">Director</td>
+                    <td class="film-details__cell">${director}</td>
+                  </tr>
+                  <tr class="film-details__row">
+                    <td class="film-details__term">Writers</td>
+                    <td class="film-details__cell">${writers}</td>
+                  </tr>
+                  <tr class="film-details__row">
+                    <td class="film-details__term">Actors</td>
+                    <td class="film-details__cell">${actors}</td>
+                  </tr>
+                  <tr class="film-details__row">
+                    <td class="film-details__term">Release Date</td>
+                    <td class="film-details__cell">${releaseDate}</td>
+                  </tr>
+                  <tr class="film-details__row">
+                    <td class="film-details__term">Runtime</td>
+                    <td class="film-details__cell">${runTime}</td>
+                  </tr>
+                  <tr class="film-details__row">
+                    <td class="film-details__term">Country</td>
+                    <td class="film-details__cell">${country}</td>
+                  </tr>
+                  <tr class="film-details__row">
+                    <td class="film-details__term">${genreText}</td>
+                    <td class="film-details__cell">
+                      ${genreMarkup}
+                    </td>
+                  </tr>
+                </table>
+
+                <p class="film-details__film-description">
+                  ${description}
+                </p>
+              </div>
+            </div>
+
+            <section class="film-details__controls">
+            ${controlsMarkup}
+            </section>
+          </div>
+
+          <div class="form-details__bottom-container">
+            <section class="film-details__comments-wrap">
+              <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">
+                ${commentsAmount}</span>
+              </h3>
+
+              <ul class="film-details__comments-list">
+              ${commentsMarkup}
+              </ul>
+
+              <div class="film-details__new-comment">
+                <div for="add-emoji" class="film-details__add-emoji-label"></div>
+
+                <label class="film-details__comment-label">
+                  <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+                </label>
+
+                <div class="film-details__emoji-list">
+                ${emojiListMarkup}
+                </div>
+              </div>
+            </section>
+          </div>
+        </form>
+      </section>`
+    );
+
   }
 
   setCloseButtonClickHandler(handler) {

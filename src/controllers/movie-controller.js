@@ -1,4 +1,5 @@
 import CardComponent from "../components/card.js";
+import CommentComponent from "../components/comment.js";
 import FilmDetailsComponent from "../components/film-details.js";
 import {render, replace, remove} from "../utils/render.js";
 
@@ -8,13 +9,14 @@ const Mode = {
 };
 
 export default class MovieController {
-  constructor(container, popupContainer, onDataChange, onViewChange) {
+  constructor(container, popupContainer, commentsModel, onDataChange, onViewChange) {
     this._container = container;
     this._popupContainer = popupContainer;
     this._cardComponent = null;
     this._filmDetailsComponent = null;
     this._mode = Mode.DEFAULT;
-    this._comments = [];
+    this._commentsModel = commentsModel;
+    this._commentComponents = [];
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
@@ -63,15 +65,15 @@ export default class MovieController {
 
   }
 
-  render(movie, comments) {
-    this._comments = comments;
+  render(movie) {
     const oldCardComponent = this._cardComponent;
     const oldFilmDetailsComponent = this._filmDetailsComponent;
-    const filmComments = movie.comments.map((id) => {
-      return comments.find((item) => item.id === id);
-    });
+    const filmComments = this._commentsModel.getCommentsByIds(movie.comments);
     this._cardComponent = new CardComponent(movie);
-    this._filmDetailsComponent = new FilmDetailsComponent(movie, filmComments);
+    this._commentComponents = filmComments.map((comment) => {
+      return new CommentComponent(comment);
+    });
+    this._filmDetailsComponent = new FilmDetailsComponent(movie, this._commentComponents);
 
     if (oldCardComponent && oldFilmDetailsComponent) {
       replace(this._cardComponent, oldCardComponent);

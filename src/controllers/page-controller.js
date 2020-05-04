@@ -14,10 +14,10 @@ const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
 const CARDS_AMOUNT_EXTRA = 2;
 
 
-const renderCards = (container, cards, comments, popupContainer, onDataChange, onViewChange) => {
+const renderCards = (container, cards, commentsModel, popupContainer, onDataChange, onViewChange) => {
   return cards.map((film) => {
-    const movieController = new MovieController(container, popupContainer, onDataChange, onViewChange);
-    movieController.render(film, comments);
+    const movieController = new MovieController(container, popupContainer, commentsModel, onDataChange, onViewChange);
+    movieController.render(film);
     return movieController;
   });
 };
@@ -77,6 +77,13 @@ export default class PageController {
     }
   }
 
+  _onCommentsDataChange(oldData, newData) {
+    if (newData === null) {
+      this._commentsModel.removeComment(oldData.id);
+
+    }
+  }
+
   _onViewChange() {
     this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.setDefaultView());
   }
@@ -106,7 +113,7 @@ export default class PageController {
     let count = 0;
     filmListExtraElements.forEach((listElement) => {
       const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
-      const newCards = renderCards(extraFilmsContainer, extraFilms[count], this._commentsModel.getComments(),
+      const newCards = renderCards(extraFilmsContainer, extraFilms[count], this._commentsModel,
           this._popupContainer, this._onDataChange, this._onViewChange);
       this._showedExtraMovieControllers = this._showedExtraMovieControllers.concat(newCards);
       count++;
@@ -121,7 +128,7 @@ export default class PageController {
   _renderMovies(movies) {
     // создаем контроллеры фильмов и отрисовываем карточки
     // Запоминаем контроллеры
-    const newCards = renderCards(this._filmsListContainer, movies.slice(0, this._showingCardsCount), this._commentsModel.getComments(),
+    const newCards = renderCards(this._filmsListContainer, movies.slice(0, this._showingCardsCount), this._commentsModel,
         this._popupContainer, this._onDataChange, this._onViewChange);
     this._showedMovieControllers = this._showedMovieControllers.concat(newCards);
     this._showingCardsCount = this._showedMovieControllers.length;
