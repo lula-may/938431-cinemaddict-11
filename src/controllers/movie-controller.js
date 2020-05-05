@@ -9,7 +9,7 @@ const Mode = {
 };
 
 export default class MovieController {
-  constructor(container, popupContainer, commentsModel, onDataChange, onViewChange, onCommentsDatachange) {
+  constructor(container, popupContainer, commentsModel, onDataChange, onViewChange, onCommentsDataChange) {
     this._container = container;
     this._popupContainer = popupContainer;
     this._cardComponent = null;
@@ -21,30 +21,27 @@ export default class MovieController {
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
-    this._onCommentsDataChange = onCommentsDatachange;
+    this._onCommentsDataChange = onCommentsDataChange;
     this._onEscPress = this._onEscPress.bind(this);
-    // this._onCommentsDataChange = this._onCommentsDataChange.bind(this);
+    this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
   }
 
   _openPopup() {
     this._onViewChange();
     render(this._popupContainer, this._filmDetailsComponent);
     this._mode = Mode.POPUP;
-    this._filmDetailsComponent.setCloseButtonClickHandler(() => {
-      this._closePopup();
-      document.removeEventListener(`keydown`, this._onEscPress);
-    });
     document.addEventListener(`keydown`, this._onEscPress);
-    // Отрисовываем комментарии
+
+    // Отрисовываем комментарии и навешиваем обработчики
     this._renderComments();
-    this._filmDetailsComponent.setFormSubmitHandler(this._onCommentDataChange);
-    this._setPopupControlHandlers(this._movie);
+    this._setPopupHandlers(this._movie);
   }
 
   _closePopup() {
     remove(this._filmDetailsComponent);
     this._filmDetailsComponent.reset();
     this._mode = Mode.DEFAULT;
+    this._commentComponents.forEach((component) => remove(component));
   }
 
   _onEscPress(evt) {
@@ -55,7 +52,12 @@ export default class MovieController {
     }
   }
 
-  _setPopupControlHandlers() {
+  _onCloseButtonClick() {
+    this._closePopup();
+    document.removeEventListener(`keydown`, this._onEscPress);
+  }
+
+  _setPopupHandlers() {
     this._filmDetailsComponent.setToWatchlistButtonChangeHandler(() => {
       this._onDataChange(this._movie, Object.assign({}, this._movie, {isInWatchlist: !this._movie.isInWatchlist}));
     });
@@ -68,6 +70,7 @@ export default class MovieController {
       this._onDataChange(this._movie, Object.assign({}, this._movie, {isFavorite: !this._movie.isFavorite}));
     });
 
+    this._filmDetailsComponent.setCloseButtonClickHandler(this._onCloseButtonClick);
   }
 
   _renderComments() {
@@ -76,7 +79,7 @@ export default class MovieController {
       render(commentsContainer, comment);
       comment.setDeleteButtonClickHandler(() => {
         this._onCommentsDataChange(this._movie, comment.getComment(), null);
-        remove(comment);
+        // remove(comment);
       });
     });
   }
@@ -90,7 +93,7 @@ export default class MovieController {
     this._commentComponents = filmComments.map((comment) => {
       return new CommentComponent(comment);
     });
-    this._filmDetailsComponent = new FilmDetailsComponent(movie, this._commentComponents);
+    this._filmDetailsComponent = new FilmDetailsComponent(movie, this._commentComponents, this._onCommentsDataChange);
 
     if (oldCardComponent && oldFilmDetailsComponent) {
       replace(this._cardComponent, oldCardComponent);
@@ -115,7 +118,7 @@ export default class MovieController {
       this._onDataChange(movie, Object.assign({}, movie, {isFavorite: !movie.isFavorite}));
     });
 
-    this._setPopupControlHandlers(movie);
+    this._setPopupHandlers(movie);
   }
 
   rerender(id, newData) {

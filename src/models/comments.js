@@ -25,7 +25,9 @@ export default class Comments {
   }
 
   removeComment(id) {
-    const index = this._comments.indexOf((comment) => comment.id === id);
+    const index = this._comments.findIndex((comment) => {
+      return comment.id === id;
+    });
 
     if (index === -1) {
       return false;

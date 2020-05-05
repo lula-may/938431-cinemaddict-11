@@ -79,23 +79,28 @@ export default class PageController {
   }
 
   _onCommentsDataChange(movie, oldData, newData) {
-    // Добавление нового комментария
+    let updatedComments = [];
+    // Добавление нового комментария в модель
     if (oldData === null) {
       this._commentsModel.addComment(newData);
+      updatedComments = [].concat(movie.comments, newData.id);
+
     } else if (newData === null) {
-      // Удаление комментария из моделей комментариев и фильмов
+      // Удаление комментария из модели
       this._commentsModel.removeComment(oldData.id);
       const index = movie.comments.findIndex((id) => id === oldData.id);
-      const newComments = [].concat(movie.comments.slice(0, index), movie.comments.slice(index + 1));
-      const newMovie = Object.assign({}, movie, {comments: newComments});
-      const isSuccess = this._moviesModel.updateMovie(movie.id, newMovie);
+      updatedComments = [].concat(movie.comments.slice(0, index), movie.comments.slice(index + 1));
+    }
 
-      if (isSuccess) {
-        this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(movie.id, newMovie));
-      }
+    // Обновляем модель фильмов
+    const updatedMovie = Object.assign({}, movie, {comments: updatedComments});
+    const isSuccess = this._moviesModel.updateMovie(movie.id, updatedMovie);
+
+    // Перерисовываем контроллер фильма с изменеными данными
+    if (isSuccess) {
+      this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(movie.id, updatedMovie));
     }
   }
-
 
   _onViewChange() {
     this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.setDefaultView());

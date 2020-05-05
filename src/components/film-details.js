@@ -9,6 +9,13 @@ const ControlIdToText = {
   [`favorite`]: `Add to favorites`,
 };
 
+const EMPTY_COMMENT = {
+  id: ``,
+  emotion: ``,
+  date: ``,
+  text: ``,
+};
+
 const getGenresMarkup = (items) => {
   return items
     .map((item) => `<span class="film-details__genre">${item}</span>`)
@@ -39,7 +46,7 @@ const getEmojiListMarkup = () => {
 };
 
 export default class FilmDetails extends AbstractSmartComponent {
-  constructor(film, commentComponents) {
+  constructor(film, commentComponents, formSubmitHandler) {
     super();
     this._film = film;
     this._commentComponents = commentComponents;
@@ -47,7 +54,8 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._watchlistHandler = null;
     this._watchedHandler = null;
     this._favoriteHandler = null;
-    this._newComment = {};
+    this._formSubmitHandler = formSubmitHandler;
+    this._newComment = Object.assign({}, EMPTY_COMMENT);
     this._subscribeOnEvents();
   }
 
@@ -203,20 +211,6 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._favoriteHandler = handler;
   }
 
-  setFormSubmitHandler(handler) {
-    this.getElement().querySelector(`.film-details__inner`).addEventListener(`keydown`, (evt) => {
-      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
-        return;
-      }
-      this._newComment.date = new Date();
-      this._newComment.id = String(Math.round(new Date() * Math.random()));
-      handler(this._newComment);
-      this._newComment = {};
-      // this.rerender();
-    });
-
-  }
-
   _renderCommentEmoji(emotion) {
     const template = `<img src="images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">`;
     const emojiContainer = this.getElement().querySelector(`.film-details__add-emoji-label`);
@@ -242,6 +236,17 @@ export default class FilmDetails extends AbstractSmartComponent {
     element.querySelector(`.film-details__comment-input`).addEventListener(`change`, (evt) => {
       this._newComment.text = evt.target.value;
     });
+
+    // Обработчик отправки формы
+    element.querySelector(`.film-details__inner`).addEventListener(`keydown`, (evt) => {
+      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
+        return;
+      }
+      this._newComment.date = new Date();
+      this._newComment.id = String(Math.round(new Date() * Math.random()));
+      this._formSubmitHandler(this._film, null, this._newComment);
+      this._newComment = Object.assign({}, EMPTY_COMMENT);
+    });
   }
 
   recoveryListeners() {
@@ -249,12 +254,16 @@ export default class FilmDetails extends AbstractSmartComponent {
     this.setToWatchlistButtonChangeHandler(this._watchlistHandler);
     this.setWatchedButtonChangeHandler(this._watchedHandler);
     this.setFavoriteButtonChangeHandler(this._favoriteHandler);
+    // this.setFormSubmitHandler(this._formSubmitHandler);
     this._subscribeOnEvents();
   }
 
+  rerender() {
+    super.rerender();
+  }
+
   reset() {
-    this._comments = this._film.comments;
-    this._newComment = {};
+    this._newComment = Object.assign({}, EMPTY_COMMENT);
     this.rerender();
   }
 }
