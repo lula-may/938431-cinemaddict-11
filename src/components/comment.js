@@ -1,5 +1,6 @@
 import AbstractComponent from "./abstract-component.js";
 import {humanizeDate} from "../utils/common.js";
+import {encode} from "he";
 
 export default class Comment extends AbstractComponent {
   constructor(comment) {
@@ -8,7 +9,8 @@ export default class Comment extends AbstractComponent {
   }
 
   getTemplate() {
-    const {emotion, date, text, author} = this._comment;
+    const {emotion, date, text: notSanitizedText, author} = this._comment;
+    const text = encode(notSanitizedText);
     const commentDate = humanizeDate(date);
     const commentText = (!text) ? `` : text;
     return (
