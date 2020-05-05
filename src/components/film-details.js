@@ -82,7 +82,6 @@ export default class FilmDetails extends AbstractSmartComponent {
     const genreText = (genres.length > 1) ? `Genres` : `Genre`;
     const genreMarkup = getGenresMarkup(genres);
     const commentsAmount = this._commentComponents.length;
-    const commentsMarkup = this._commentComponents.map((component) => component.getTemplate()).join(`\n`);
     const emojiListMarkup = getEmojiListMarkup();
 
     return (
@@ -162,7 +161,6 @@ export default class FilmDetails extends AbstractSmartComponent {
               </h3>
 
               <ul class="film-details__comments-list">
-              ${commentsMarkup}
               </ul>
 
               <div class="film-details__new-comment">
@@ -205,6 +203,20 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._favoriteHandler = handler;
   }
 
+  setFormSubmitHandler(handler) {
+    this.getElement().querySelector(`.film-details__inner`).addEventListener(`keydown`, (evt) => {
+      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
+        return;
+      }
+      this._newComment.date = new Date();
+      this._newComment.id = String(Math.round(new Date() * Math.random()));
+      handler(this._newComment);
+      this._newComment = {};
+      // this.rerender();
+    });
+
+  }
+
   _renderCommentEmoji(emotion) {
     const template = `<img src="images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">`;
     const emojiContainer = this.getElement().querySelector(`.film-details__add-emoji-label`);
@@ -229,17 +241,6 @@ export default class FilmDetails extends AbstractSmartComponent {
     // Обработчик ввода текста комментария
     element.querySelector(`.film-details__comment-input`).addEventListener(`change`, (evt) => {
       this._newComment.text = evt.target.value;
-    });
-
-    // Обработчик нажатия Ctrl/Command + Enter для отправки комментария
-    element.querySelector(`.film-details__inner`).addEventListener(`keydown`, (evt) => {
-      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
-        return;
-      }
-      this._newComment.date = new Date();
-      this._comments.push(this._newComment);
-      this._newComment = {};
-      this.rerender();
     });
   }
 

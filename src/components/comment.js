@@ -21,15 +21,22 @@ export default class Comment extends AbstractComponent {
           <p class="film-details__comment-info">
             <span class="film-details__comment-author">${author}</span>
             <span class="film-details__comment-day">${commentDate}</span>
-            <button class="film-details__comment-delete">Delete</button>
+            <button class="film-details__comment-delete" type="button">Delete</button>
           </p>
         </div>
       </li>`
     );
   }
 
+  getComment() {
+    return this._comment;
+  }
+
   setDeleteButtonClickHandler(handler) {
-    this.getElement().querySelector(`.film-details__comment-delete`)
-      .addEventListener(`click`, handler);
+    const button = this.getElement().querySelector(`.film-details__comment-delete`);
+    button.addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+      handler();
+    });
   }
 }

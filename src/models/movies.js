@@ -22,6 +22,10 @@ export default class Movies {
     this._callHandlers(this._dataChangeHandlers);
   }
 
+  getMovieById(id) {
+    return this._movies.find((movie) => movie.id === id);
+  }
+
   updateMovie(id, movie) {
     const index = this._movies.findIndex((film) => film.id === id);
 

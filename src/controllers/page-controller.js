@@ -14,9 +14,9 @@ const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
 const CARDS_AMOUNT_EXTRA = 2;
 
 
-const renderCards = (container, cards, commentsModel, popupContainer, onDataChange, onViewChange) => {
+const renderCards = (container, cards, commentsModel, popupContainer, onDataChange, onViewChange, onCommentsDataChange) => {
   return cards.map((film) => {
-    const movieController = new MovieController(container, popupContainer, commentsModel, onDataChange, onViewChange);
+    const movieController = new MovieController(container, popupContainer, commentsModel, onDataChange, onViewChange, onCommentsDataChange);
     movieController.render(film);
     return movieController;
   });
@@ -43,6 +43,7 @@ export default class PageController {
 
     this._onSortTypeChange = this._onSortTypeChange.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
+    this._onCommentsDataChange = this._onCommentsDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
     this._onShowMoreButtonClick = this._onShowMoreButtonClick.bind(this);
@@ -77,12 +78,24 @@ export default class PageController {
     }
   }
 
-  _onCommentsDataChange(oldData, newData) {
-    if (newData === null) {
+  _onCommentsDataChange(movie, oldData, newData) {
+    // Добавление нового комментария
+    if (oldData === null) {
+      this._commentsModel.addComment(newData);
+    } else if (newData === null) {
+      // Удаление комментария из моделей комментариев и фильмов
       this._commentsModel.removeComment(oldData.id);
+      const index = movie.comments.findIndex((id) => id === oldData.id);
+      const newComments = [].concat(movie.comments.slice(0, index), movie.comments.slice(index + 1));
+      const newMovie = Object.assign({}, movie, {comments: newComments});
+      const isSuccess = this._moviesModel.updateMovie(movie.id, newMovie);
 
+      if (isSuccess) {
+        this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(movie.id, newMovie));
+      }
     }
   }
+
 
   _onViewChange() {
     this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.setDefaultView());
@@ -114,7 +127,7 @@ export default class PageController {
     filmListExtraElements.forEach((listElement) => {
       const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
       const newCards = renderCards(extraFilmsContainer, extraFilms[count], this._commentsModel,
-          this._popupContainer, this._onDataChange, this._onViewChange);
+          this._popupContainer, this._onDataChange, this._onViewChange, this._onCommentsDataChange);
       this._showedExtraMovieControllers = this._showedExtraMovieControllers.concat(newCards);
       count++;
     });
@@ -129,7 +142,7 @@ export default class PageController {
     // создаем контроллеры фильмов и отрисовываем карточки
     // Запоминаем контроллеры
     const newCards = renderCards(this._filmsListContainer, movies.slice(0, this._showingCardsCount), this._commentsModel,
-        this._popupContainer, this._onDataChange, this._onViewChange);
+        this._popupContainer, this._onDataChange, this._onViewChange, this._onCommentsDataChange);
     this._showedMovieControllers = this._showedMovieControllers.concat(newCards);
     this._showingCardsCount = this._showedMovieControllers.length;
   }
