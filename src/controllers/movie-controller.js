@@ -15,6 +15,7 @@ export default class MovieController {
     this._cardComponent = null;
     this._filmDetailsComponent = null;
     this._mode = Mode.DEFAULT;
+    this._updatedFilmDetailsComponent = null;
     this._commentsModel = commentsModel;
     this._commentComponents = [];
     this._movie = null;
@@ -39,6 +40,10 @@ export default class MovieController {
 
   _closePopup() {
     remove(this._filmDetailsComponent);
+    if (this._updatedFilmDetailsComponent) {
+      this._filmDetailsComponent = this._updatedFilmDetailsComponent;
+      this._updatedFilmDetailsComponent = null;
+    }
     this._filmDetailsComponent.reset();
     this._mode = Mode.DEFAULT;
     this._commentComponents.forEach((component) => remove(component));
@@ -79,26 +84,23 @@ export default class MovieController {
       render(commentsContainer, comment);
       comment.setDeleteButtonClickHandler(() => {
         this._onCommentsDataChange(this._movie, comment.getComment(), null);
-        // remove(comment);
       });
     });
   }
 
   render(movie) {
     this._movie = movie;
-    const oldCardComponent = this._cardComponent;
-    const oldFilmDetailsComponent = this._filmDetailsComponent;
-    const filmComments = this._commentsModel.getCommentsByIds(movie.comments);
-    this._cardComponent = new CardComponent(movie);
-    this._commentComponents = filmComments.map((comment) => {
-      return new CommentComponent(comment);
-    });
-    this._filmDetailsComponent = new FilmDetailsComponent(movie, this._commentComponents, this._onCommentsDataChange);
+    this._renderCard();
+    this._createFilmDetailsComponent();
+  }
 
-    if (oldCardComponent && oldFilmDetailsComponent) {
+  _renderCard() {
+    const movie = this._movie;
+    const oldCardComponent = this._cardComponent;
+    this._cardComponent = new CardComponent(movie);
+
+    if (oldCardComponent) {
       replace(this._cardComponent, oldCardComponent);
-      replace(this._filmDetailsComponent, oldFilmDetailsComponent);
-      this._renderComments();
     } else {
       render(this._container, this._cardComponent);
     }
@@ -117,8 +119,21 @@ export default class MovieController {
     this._cardComponent.setFavoriteButtonClickHandler(() => {
       this._onDataChange(movie, Object.assign({}, movie, {isFavorite: !movie.isFavorite}));
     });
+  }
 
-    this._setPopupHandlers(movie);
+  _createFilmDetailsComponent() {
+    const movie = this._movie;
+    const oldFilmDetailsComponent = this._filmDetailsComponent;
+    const filmComments = this._commentsModel.getCommentsByIds(movie.comments);
+    this._commentComponents = filmComments.map((comment) => {
+      return new CommentComponent(comment);
+    });
+    this._updatedFilmDetailsComponent = new FilmDetailsComponent(movie, this._commentComponents, this._onCommentsDataChange);
+
+    if (!oldFilmDetailsComponent || this._mode === Mode.DEFAULT) {
+      this._filmDetailsComponent = this._updatedFilmDetailsComponent;
+      this._updatedFilmDetailsComponent = null;
+    }
   }
 
   rerender(id, newData) {
