@@ -1,13 +1,12 @@
-import {formatReleaseDate, humanizeDate, formatRunTime} from "../utils/common.js";
-import AbstractSmartComponent from "./abstract-smart-component.js";
-import {createElement} from "../utils/render.js";
-import {EMOTIONS} from "../utils/const.js";
+import {formatReleaseDate, formatRunTime} from "../utils/common.js";
+import AbstractComponent from "./abstract-component.js";
 
 const ControlIdToText = {
   [`watchlist`]: `Add to watchlist`,
   [`watched`]: `Already watched`,
   [`favorite`]: `Add to favorites`,
 };
+
 
 const getGenresMarkup = (items) => {
   return items
@@ -27,43 +26,7 @@ const getControllsMarkup = (activeControls) => {
   }).join(`\n`);
 };
 
-const getCommentsMarkup = (items) => {
-  return items.
-    map((item) => {
-      const {emotion, date, text, author} = item;
-      const commentDate = humanizeDate(date);
-      const commentText = (!text) ? `` : text;
-      return (
-        `<li class="film-details__comment">
-          <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
-          </span>
-          <div>
-            <p class="film-details__comment-text">${commentText}</p>
-            <p class="film-details__comment-info">
-              <span class="film-details__comment-author">${author}</span>
-              <span class="film-details__comment-day">${commentDate}</span>
-              <button class="film-details__comment-delete">Delete</button>
-            </p>
-          </div>
-        </li>`
-      );
-    })
-    .join(`\n`);
-};
-
-const getEmojiListMarkup = () => {
-  return EMOTIONS.map((emotion) => {
-    return (
-      `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}">
-      <label class="film-details__emoji-label" for="emoji-${emotion}">
-        <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
-      </label>`
-    );
-  }).join(`\n`);
-};
-
-const getFilmDetailsTemplate = (film) => {
+const getFilmDetailsMarkup = (film) => {
   const {
     title,
     originalTitle,
@@ -81,8 +44,8 @@ const getFilmDetailsTemplate = (film) => {
     isInWatchlist,
     isFavorite,
     isInHistory,
-    comments,
   } = film;
+
   const releaseDate = formatReleaseDate(date);
   const runTime = formatRunTime(duration);
   const activeControls = {
@@ -94,8 +57,6 @@ const getFilmDetailsTemplate = (film) => {
   const controlsMarkup = getControllsMarkup(activeControls);
   const genreText = (genres.length > 1) ? `Genres` : `Genre`;
   const genreMarkup = getGenresMarkup(genres);
-  const commentsMarkup = getCommentsMarkup(comments);
-  const emojiListMarkup = getEmojiListMarkup();
 
   return (
     `<section class="film-details">
@@ -168,32 +129,13 @@ const getFilmDetailsTemplate = (film) => {
         </div>
 
         <div class="form-details__bottom-container">
-          <section class="film-details__comments-wrap">
-            <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
-
-            <ul class="film-details__comments-list">
-            ${commentsMarkup}
-            </ul>
-
-            <div class="film-details__new-comment">
-              <div for="add-emoji" class="film-details__add-emoji-label"></div>
-
-              <label class="film-details__comment-label">
-                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
-              </label>
-
-              <div class="film-details__emoji-list">
-              ${emojiListMarkup}
-              </div>
-            </div>
-          </section>
         </div>
       </form>
     </section>`
   );
 };
 
-export default class FilmDetails extends AbstractSmartComponent {
+export default class FilmDetails extends AbstractComponent {
   constructor(film) {
     super();
     this._film = film;
@@ -201,13 +143,10 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._watchlistHandler = null;
     this._watchedHandler = null;
     this._favoriteHandler = null;
-    this._comments = this._film.comments;
-    this._newComment = {};
-    this._subscribeOnEvents();
   }
 
   getTemplate() {
-    return getFilmDetailsTemplate(this._film);
+    return getFilmDetailsMarkup(this._film);
   }
 
   setCloseButtonClickHandler(handler) {
@@ -229,57 +168,5 @@ export default class FilmDetails extends AbstractSmartComponent {
   setFavoriteButtonChangeHandler(handler) {
     this.getElement().querySelector(`#favorite`).addEventListener(`change`, handler);
     this._favoriteHandler = handler;
-  }
-
-  _renderCommentEmoji(emotion) {
-    const template = `<img src="images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">`;
-    const emojiContainer = this.getElement().querySelector(`.film-details__add-emoji-label`);
-    emojiContainer.innerHTML = ``;
-    const emojiElement = createElement(template);
-    emojiContainer.append(emojiElement);
-  }
-
-  _subscribeOnEvents() {
-    const element = this.getElement();
-
-    // Навешиваем обработчик клика по эмоджи
-    element.querySelector(`.film-details__emoji-list`).addEventListener(`click`, (evt) => {
-      if (evt.target.tagName !== `INPUT`) {
-        return;
-      }
-      const emotion = evt.target.value;
-      this._renderCommentEmoji(emotion);
-      this._newComment.emotion = emotion;
-    });
-
-    // Обработчик ввода текста комментария
-    element.querySelector(`.film-details__comment-input`).addEventListener(`change`, (evt) => {
-      this._newComment.text = evt.target.value;
-    });
-
-    // Обработчик нажатия Ctrl/Command + Enter для отправки комментария
-    element.querySelector(`.film-details__inner`).addEventListener(`keydown`, (evt) => {
-      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
-        return;
-      }
-      this._newComment.date = new Date();
-      this._comments.push(this._newComment);
-      this._newComment = {};
-      this.rerender();
-    });
-  }
-
-  recoveryListeners() {
-    this.setCloseButtonClickHandler(this._closeClickHandler);
-    this.setToWatchlistButtonChangeHandler(this._watchlistHandler);
-    this.setWatchedButtonChangeHandler(this._watchedHandler);
-    this.setFavoriteButtonChangeHandler(this._favoriteHandler);
-    this._subscribeOnEvents();
-  }
-
-  reset() {
-    this._comments = this._film.comments;
-    this._newComment = {};
-    this.rerender();
   }
 }

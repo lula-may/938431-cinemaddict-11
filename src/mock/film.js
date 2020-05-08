@@ -1,15 +1,14 @@
-import {EMOTIONS} from "../utils/const.js";
+import {getFilmCommentsIds} from "./comments.js";
 
 const DESCRIPTION_MIN_SENTENCES = 1;
 const DESCRIPTION_MAX_SENTENCES = 5;
-const MAX_COMMENTS_AMOUNT = 5;
 const MIN_ACTORS = 2;
 const MAX_ACTORS = 5;
 const MAX_WRITERS = 3;
 const MIN_YEAR = 1930;
 const MAX_YEAR = 2020;
-const MIN_FILM_LENGTH = 60;
-const MAX_FILM_LENGTH = 180;
+const MIN_FILM_LENGTH = 45;
+const MAX_FILM_LENGTH = 120;
 const MIN_AGE = 1;
 const MAX_AGE = 7;
 const MONTHS_AMOUNT = 12;
@@ -85,7 +84,7 @@ const WRITERS = [
 ];
 
 const DESCRIPTION_TEXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
-const ACTORS = [
+export const ACTORS = [
   `Tom Hanks`,
   `John Malkovich`,
   `Johnny Depp`,
@@ -106,28 +105,10 @@ const ACTORS = [
   `Jennifer Lawrence`
 ];
 
-const COMMENT_TEXTS = [
-  `It's a simple, but at the same time exciting movie`,
-  `After watching the movie, you suddenly start to believe in magic`,
-  `This is a new symbiosis of a blockbuster with post-Apocalypse`,
-  `Everything is fantastic and believable`,
-  `In a week you will not remember that you've seen the movie`,
-  `I liked the beautiful outfits of female characters`,
-  `Most modern viewers may find this film boring and corny`,
-  `The soundtrack is nothing but pop music`,
-  `The actors are either half-assing or are too hammy`,
-  `So cynical and indecent, I wouldn't ever rate it positively`,
-  `This is a disgrace, gentlemen`,
-  `Dumb and dumber, the threequel`,
-  `When's the sequel coming out? This is a must watch`,
-  `The movie is touching and fun, makes you live through all these feelings and reflect on them `
-];
-
-
-const getRandomInteger = (min, max) => Math.round(Math.random() * (max - min) + min);
+export const getRandomInteger = (min, max) => Math.round(Math.random() * (max - min) + min);
 const getRandomBoolean = () => Math.random() < 0.5;
 
-const getRandomItem = (items) => items[Math.floor(Math.random() * items.length)];
+export const getRandomItem = (items) => items[Math.floor(Math.random() * items.length)];
 
 const getRandomSubList = (items, value) => {
   let subList = [];
@@ -147,12 +128,6 @@ const getRandomReleaseDate = () => {
   return new Date(year, month, day);
 };
 
-const getRandomCommentDate = () => {
-  const date = new Date();
-  date.setDate(date.getDate() - getRandomInteger(0, 10));
-  return date;
-};
-
 const getFilmPoster = (name) => {
   const path = name.split(` `).map((word) => word.toLowerCase()).join(`-`);
   return `${path}.jpg`;
@@ -166,24 +141,10 @@ const getFilmDescription = () => {
   return descriptions.join(` `);
 };
 
-const getFilmComments = () => {
-  const amount = getRandomInteger(0, MAX_COMMENTS_AMOUNT);
-  const comments = new Array(amount);
-  return comments
-    .fill(``)
-    .map(() => {
-      return {
-        emotion: getRandomItem(EMOTIONS),
-        date: getRandomCommentDate(),
-        text: getRandomItem(COMMENT_TEXTS),
-        author: getRandomItem(ACTORS)
-      };
-    });
-};
-
 const createFilm = () => {
   const title = getRandomItem(FILM_NAMES);
   return {
+    id: String(Math.round(new Date() * Math.random())),
     title,
     originalTitle: title,
     poster: FilmToPosterFile[title] || getFilmPoster(title),
@@ -195,7 +156,7 @@ const createFilm = () => {
     country: getRandomItem(COUNTRIES),
     genres: getRandomSubList(GENRES, getRandomInteger(1, MAX_WRITERS)),
     description: getFilmDescription(),
-    comments: getFilmComments(),
+    comments: getFilmCommentsIds(),
     rating: getRandomInteger(0, 100) / 10,
     age: getRandomInteger(MIN_AGE, MAX_AGE) * 3,
     isInHistory: getRandomBoolean(),
