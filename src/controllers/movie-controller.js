@@ -1,4 +1,5 @@
 import CardComponent from "../components/card.js";
+import CommentsComponent from "../components/comments.js";
 import CommentComponent from "../components/comment.js";
 import FilmDetailsComponent from "../components/film-details.js";
 import {render, replace, remove} from "../utils/render.js";
@@ -12,12 +13,15 @@ export default class MovieController {
   constructor(container, popupContainer, commentsModel, onDataChange, onViewChange, onCommentsDataChange) {
     this._container = container;
     this._popupContainer = popupContainer;
+
     this._cardComponent = null;
     this._filmDetailsComponent = null;
-    this._mode = Mode.DEFAULT;
     this._updatedFilmDetailsComponent = null;
-    this._commentsModel = commentsModel;
+    this._commentsComponent = null;
     this._commentComponents = [];
+
+    this._mode = Mode.DEFAULT;
+    this._commentsModel = commentsModel;
     this._movie = null;
 
     this._onDataChange = onDataChange;
@@ -34,7 +38,8 @@ export default class MovieController {
     document.addEventListener(`keydown`, this._onEscPress);
 
     // Отрисовываем комментарии и навешиваем обработчики
-    this._renderComments();
+    const commentsContainer = this._popupContainer.querySelector(`.form-details__bottom-container`);
+    render(commentsContainer, this._commentsComponent);
     this._setPopupHandlers(this._movie);
   }
 
@@ -44,9 +49,8 @@ export default class MovieController {
       this._filmDetailsComponent = this._updatedFilmDetailsComponent;
       this._updatedFilmDetailsComponent = null;
     }
-    this._filmDetailsComponent.reset();
+    this._commentsComponent.reset();
     this._mode = Mode.DEFAULT;
-    this._commentComponents.forEach((component) => remove(component));
   }
 
   _onEscPress(evt) {
@@ -76,22 +80,6 @@ export default class MovieController {
     });
 
     this._filmDetailsComponent.setCloseButtonClickHandler(this._onCloseButtonClick);
-  }
-
-  _renderComments() {
-    const commentsContainer = this._filmDetailsComponent.getElement().querySelector(`.film-details__comments-list`);
-    this._commentComponents.forEach((comment) => {
-      render(commentsContainer, comment);
-      comment.setDeleteButtonClickHandler(() => {
-        this._onCommentsDataChange(this._movie, comment.getComment(), null);
-      });
-    });
-  }
-
-  render(movie) {
-    this._movie = movie;
-    this._renderCard();
-    this._createFilmDetailsComponent();
   }
 
   _renderCard() {
@@ -124,16 +112,34 @@ export default class MovieController {
   _createFilmDetailsComponent() {
     const movie = this._movie;
     const oldFilmDetailsComponent = this._filmDetailsComponent;
-    const filmComments = this._commentsModel.getCommentsByIds(movie.comments);
-    this._commentComponents = filmComments.map((comment) => {
-      return new CommentComponent(comment);
-    });
     this._updatedFilmDetailsComponent = new FilmDetailsComponent(movie, this._commentComponents, this._onCommentsDataChange);
 
     if (!oldFilmDetailsComponent || this._mode === Mode.DEFAULT) {
       this._filmDetailsComponent = this._updatedFilmDetailsComponent;
       this._updatedFilmDetailsComponent = null;
     }
+  }
+
+  _renderComments() {
+    const movieComments = this._commentsModel.getCommentsByIds(this._movie.comments);
+    this._commentComponents = movieComments.map((comment) => {
+      return new CommentComponent(this._movie, comment);
+    });
+    const oldCommentsComponent = this._commentsComponent;
+
+    this._commentsComponent = new CommentsComponent(this._movie, this._commentComponents, this._onCommentsDataChange);
+    if (oldCommentsComponent) {
+      replace(this._commentsComponent, oldCommentsComponent);
+    }
+
+    this._commentsComponent.renderComments();
+  }
+
+  render(movie) {
+    this._movie = movie;
+    this._renderCard();
+    this._createFilmDetailsComponent();
+    this._renderComments();
   }
 
   rerender(id, newData) {

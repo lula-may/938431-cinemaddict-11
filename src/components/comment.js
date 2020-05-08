@@ -3,8 +3,9 @@ import {humanizeDate} from "../utils/common.js";
 import {encode} from "he";
 
 export default class Comment extends AbstractComponent {
-  constructor(comment) {
+  constructor(movie, comment) {
     super();
+    this._movie = movie;
     this._comment = comment;
   }
 
@@ -35,10 +36,11 @@ export default class Comment extends AbstractComponent {
   }
 
   setDeleteButtonClickHandler(handler) {
-    const button = this.getElement().querySelector(`.film-details__comment-delete`);
-    button.addEventListener(`click`, (evt) => {
+    this.getElement().addEventListener(`click`, (evt) => {
       evt.preventDefault();
-      handler();
+      if (evt.target.tagName === `BUTTON`) {
+        handler();
+      }
     });
   }
 }
