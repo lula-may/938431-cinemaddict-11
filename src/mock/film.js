@@ -13,6 +13,8 @@ const MIN_AGE = 1;
 const MAX_AGE = 7;
 const MONTHS_AMOUNT = 12;
 const DAYS_AMOUNT = 31;
+const WATCHING_DATE_RANGE_IN_YEARS = 3;
+const DAYS_IN_YEAR = 365;
 const FILM_NAMES = [
   `The Dance of Life`,
   `Sagebrush Trail`,
@@ -121,11 +123,23 @@ const getRandomSubList = (items, value) => {
   return subList;
 };
 
-const getRandomReleaseDate = () => {
-  const year = getRandomInteger(MIN_YEAR, MAX_YEAR);
+const getRandomDate = (years) => {
+  const [minYear, maxYear] = years;
+  const year = getRandomInteger(minYear, maxYear);
   const month = getRandomInteger(1, MONTHS_AMOUNT);
   const day = getRandomInteger(1, DAYS_AMOUNT);
   return new Date(year, month, day);
+};
+
+const getRandomReleaseDate = () => {
+  return getRandomDate([MIN_YEAR, MAX_YEAR]);
+};
+
+const getRandomWatchingDate = () => {
+  const daysRange = DAYS_IN_YEAR * WATCHING_DATE_RANGE_IN_YEARS;
+  let watchingDate = new Date();
+  watchingDate.setDate(watchingDate.getDate() - getRandomInteger(0, daysRange));
+  return watchingDate;
 };
 
 const getFilmPoster = (name) => {
@@ -143,6 +157,9 @@ const getFilmDescription = () => {
 
 const createFilm = () => {
   const title = getRandomItem(FILM_NAMES);
+  const isInHistory = getRandomBoolean();
+  const watchingDate = isInHistory ? getRandomWatchingDate() : null;
+
   return {
     id: String(Math.round(new Date() * Math.random())),
     title,
@@ -159,7 +176,8 @@ const createFilm = () => {
     comments: getFilmCommentsIds(),
     rating: getRandomInteger(0, 100) / 10,
     age: getRandomInteger(MIN_AGE, MAX_AGE) * 3,
-    isInHistory: getRandomBoolean(),
+    isInHistory,
+    watchingDate,
     isFavorite: getRandomBoolean(),
     isInWatchlist: getRandomBoolean(),
   };

@@ -72,7 +72,8 @@ export default class MovieController {
     });
 
     this._filmDetailsComponent.setWatchedButtonChangeHandler(() => {
-      this._onDataChange(this._movie, Object.assign({}, this._movie, {isInHistory: !this._movie.isInHistory}));
+      this._onDataChange(this._movie, Object.assign({}, this._movie, {isInHistory: !this._movie.isInHistory,
+        watchingDate: this._movie.watchingDate ? null : new Date()}));
     });
 
     this._filmDetailsComponent.setFavoriteButtonChangeHandler(() => {
@@ -101,7 +102,8 @@ export default class MovieController {
     });
 
     this._cardComponent.setWatchedButtonClickHandler(() => {
-      this._onDataChange(movie, Object.assign({}, movie, {isInHistory: !movie.isInHistory}));
+      this._onDataChange(movie, Object.assign({}, movie, {isInHistory: !movie.isInHistory,
+        watchingDate: movie.watchingDate ? null : new Date()}));
     });
 
     this._cardComponent.setFavoriteButtonClickHandler(() => {
