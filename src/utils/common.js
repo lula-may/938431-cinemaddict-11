@@ -11,8 +11,9 @@ const formatReleaseDate = (date) => {
 const formatRunTime = (duration) => {
   const runTime = moment.duration(duration, `minutes`);
   const hours = runTime.hours();
+  const isHour = hours > 0;
   const minutes = runTime.minutes();
-  return `${hours}h ${minutes}m`;
+  return `${isHour ? `${hours}h ` : ``}${minutes}m`;
 };
 
 const humanizeDate = (date) => {
