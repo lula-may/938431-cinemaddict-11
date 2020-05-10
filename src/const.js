@@ -1,4 +1,5 @@
 const EMOTIONS = [`smile`, `sleeping`, `puke`, `angry`];
+
 const FilterType = {
   ALL: `all`,
   WATCHLIST: `watchlist`,
@@ -6,4 +7,12 @@ const FilterType = {
   FAVORITES: `favorites`,
 };
 
-export {EMOTIONS, FilterType};
+const NavType = {
+  FILMS: `films`,
+  STATS: `stats`
+};
+
+
+const HIDDEN_CLASS = `visually-hidden`;
+
+export {EMOTIONS, FilterType, NavType, HIDDEN_CLASS};

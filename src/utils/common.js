@@ -19,4 +19,9 @@ const humanizeDate = (date) => {
   return moment(date).fromNow();
 };
 
-export {formatDate, formatReleaseDate, formatRunTime, humanizeDate};
+const capitalizeFirstLetter = (text) => {
+  const firstLetter = text.slice(0, 1).toUpperCase();
+  return firstLetter + text.slice(1);
+};
+
+export {formatDate, formatReleaseDate, formatRunTime, humanizeDate, capitalizeFirstLetter};

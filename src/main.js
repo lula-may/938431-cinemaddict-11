@@ -4,13 +4,16 @@ import FooterStatComponent from "./components/footer-stat.js";
 import MoviesModel from "./models/movies.js";
 import PageController from "./controllers/page-controller.js";
 import SiteNavComponent from "./components/site-nav.js";
+import StatisticsComponent from "./components/statistics.js";
 import UserProfileComponent from "./components/user-profile.js";
 import {generateFilms} from "./mock/film.js";
 import {getComments} from "./mock/comments.js";
 import {getUserLevel} from "./utils/components-data.js";
 import {RenderPosition, render} from "./utils/render.js";
+import {NavType} from "./const.js";
 
 const FILMS_AMOUNT = 20;
+
 const films = generateFilms(FILMS_AMOUNT);
 const comments = getComments();
 const userLevel = getUserLevel(films);
@@ -28,13 +31,28 @@ render(pageHeaderElement, new UserProfileComponent(userLevel));
 
 // Отрисовываю навигацию с фильтрами
 const siteNavComponent = new SiteNavComponent();
+siteNavComponent.setOnChangeHandler((navItem) => {
+  if (navItem === NavType.STATS) {
+    pageController.hide();
+    statisticsComponent.show();
+  } else {
+    statisticsComponent.hide();
+    pageController.show();
+  }
+});
 render(pageMainElement, siteNavComponent);
 
 const filterController = new FilterController(siteNavComponent.getElement(), moviesModel);
 filterController.render();
+
 // Отрисовываю основное содержимое страницы
 const pageController = new PageController(pageMainElement, bodyElement, moviesModel, commentsModel);
 pageController.render();
+
+// Отрисовываю блок со статистикой
+const statisticsComponent = new StatisticsComponent(moviesModel);
+render(pageMainElement, statisticsComponent);
+statisticsComponent.hide();
 
 // Статистика в футере
 const footerStatisticsElement = bodyElement.querySelector(`.footer__statistics`);

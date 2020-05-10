@@ -64,11 +64,17 @@ export default class PageController {
   }
 
   _renderShowMoreButton() {
-    if (this._showingCardsCount >= this._moviesModel.getAllMovies().length) {
+    if (this._showingCardsCount >= this._moviesModel.getMovies().length) {
       return;
     }
     render(this._filmsList, this._showMoreComponent);
     this._showMoreComponent.setClickHandler(this._onShowMoreButtonClick);
+  }
+
+  _resetSortType() {
+    this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
+    this._sortComponent.setSortType(SortType.DEFAULT);
+    this._updateMovies(this._showingCardsCount);
   }
 
   _onDataChange(oldData, newData) {
@@ -115,9 +121,7 @@ export default class PageController {
   }
 
   _onFilterChange() {
-    this._showingCardsCount = SHOWING_CARDS_AMOUNT_ON_START;
-    this._sortComponent.setSortType(SortType.DEFAULT);
-    this._updateMovies(this._showingCardsCount);
+    this._resetSortType();
   }
 
   _renderExtraFilms() {
@@ -182,5 +186,18 @@ export default class PageController {
 
     // Дополнительные секции
     this._renderExtraFilms();
+  }
+
+  hide() {
+    this._cardListComponent.hide();
+    this._sortComponent.hide();
+    this._noFilmsComponent.hide();
+    this._resetSortType();
+  }
+
+  show() {
+    this._sortComponent.show();
+    this._cardListComponent.show();
+    this._noFilmsComponent.show();
   }
 }

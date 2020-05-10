@@ -1,7 +1,22 @@
 import FilterComponent from "../components/filter.js";
 import {FilterType} from "../const.js";
-import {getFilmsByFilter} from "../utils/filter.js";
 import {render, replace, RenderPosition} from "../utils/render.js";
+
+const FilterToFlag = {
+  [FilterType.ALL]: ``,
+  [FilterType.WATCHLIST]: `isInWatchlist`,
+  [FilterType.HISTORY]: `isInHistory`,
+  [FilterType.FAVORITES]: `isFavorite`
+};
+
+export const getFilmsByFilter = (filter, films) => {
+  const property = FilterToFlag[filter];
+  if (!property) {
+    return films;
+  }
+  return films.filter((film) => film[property]);
+};
+
 
 export default class Filter {
   constructor(container, moviesModel) {
