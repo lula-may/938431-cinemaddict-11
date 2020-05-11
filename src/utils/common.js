@@ -25,4 +25,8 @@ const capitalizeFirstLetter = (text) => {
   return firstLetter + text.slice(1);
 };
 
-export {formatDate, formatReleaseDate, formatRunTime, humanizeDate, capitalizeFirstLetter};
+const resetTime = (date) => {
+  return moment(date).hours(0).minutes(0).seconds(0);
+};
+
+export {formatDate, formatReleaseDate, formatRunTime, humanizeDate, capitalizeFirstLetter, resetTime};

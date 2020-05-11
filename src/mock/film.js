@@ -13,7 +13,7 @@ const MIN_AGE = 1;
 const MAX_AGE = 7;
 const MONTHS_AMOUNT = 12;
 const DAYS_AMOUNT = 31;
-const WATCHING_DATE_RANGE_IN_YEARS = 3;
+const WATCHING_DATE_RANGE_IN_YEARS = 0.5;
 const DAYS_IN_YEAR = 365;
 const FILM_NAMES = [
   `The Dance of Life`,

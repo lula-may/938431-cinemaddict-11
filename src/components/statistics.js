@@ -1,5 +1,5 @@
 import AbstractSmartComponent from "./abstract-smart-component.js";
-import {capitalizeFirstLetter} from "../utils/common.js";
+import {capitalizeFirstLetter, resetTime} from "../utils/common.js";
 import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import {getFilmsByFilter} from "../controllers/filter.js";
@@ -36,35 +36,37 @@ const getSortedGenres = (allGenres) => allGenres.filter(isUniqItem)
   });
 
 const getDateFromByFilter = (filter) => {
-  let dateFrom = new Date();
+  let dateFrom = moment();
   switch (filter) {
     case StatisticsFilterType.TODAY:
       break;
     case StatisticsFilterType.WEEK:
-      dateFrom.setDate(dateFrom.getDate - 7);
+      dateFrom.subtract(7, `days`);
+      resetTime(dateFrom);
       break;
     case StatisticsFilterType.MONTH:
-      dateFrom.setMonth(dateFrom.getMonth() - 1);
+      dateFrom.subtract(1, `months`);
+      resetTime(dateFrom);
       break;
     case StatisticsFilterType.YEAR:
-      dateFrom.setFullYear(dateFrom.getFullYear() - 1);
+      dateFrom.subtract(1, `years`);
+      resetTime(dateFrom);
       break;
     default:
       dateFrom = null;
-      break;
   }
   return dateFrom;
 };
 
-const getMoviesFromDate = (dateFrom, movies) => {
+const getMoviesByStatisticsFilter = (filter, movies) => {
+  const dateFrom = getDateFromByFilter(filter);
   if (!dateFrom) {
     return movies;
   }
+  const dateTo = moment();
   return movies.filter((movie) => {
-    const from = dateFrom.getDate();
-    const to = new Date().getDate();
-    const watchingDate = movie.watchingDate.getDate();
-    return watchingDate <= to && watchingDate >= from;
+    const watchingDate = moment(movie.watchingDate);
+    return watchingDate <= dateTo && watchingDate >= dateFrom;
   });
 };
 
@@ -83,7 +85,7 @@ const getFiltersMarkup = (activeFilter) => {
     return (
       `<input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter"
         id="statistic-${filter}" value="${filter}" ${isChecked ? `checked` : ``}>
-        <label for="statistic-all-time" class="statistic__filters-label">${filterLabel}</label>`
+        <label for="statistic-${filter}" class="statistic__filters-label">${filterLabel}</label>`
     );
   })
   .join(`\n`);
@@ -180,8 +182,7 @@ const renderGenresChart = (statisticCtx, movies) => {
           gridLines: {
             display: false,
             drawBorder: false
-          },
-          // barThickness: 24
+          }
         }],
         xAxes: [{
           ticks: {
@@ -209,24 +210,49 @@ export default class Statistics extends AbstractSmartComponent {
     super();
     this._moviesModel = moviesModel;
     this._watchedMovies = getFilmsByFilter(FilterType.HISTORY, this._moviesModel.getAllMovies());
+    this._moviesForPeriod = [].concat(this._watchedMovies);
     this._activeFilter = StatisticsFilterType.ALL;
 
-    this._renderChart();
+    this._chart = this._renderChart();
+    this._setFilterChangeHandler();
   }
 
   getTemplate() {
     const userRank = getUserTitle(this._watchedMovies.length);
-    const dateFrom = getDateFromByFilter(this._activeFilter);
-    const moviesForPeriod = getMoviesFromDate(dateFrom, this._watchedMovies);
-    return getStatisticsTemplate({userRank, movies: moviesForPeriod, activeFilter: this._activeFilter});
+    const movies = this._moviesForPeriod;
+    return getStatisticsTemplate({userRank, movies, activeFilter: this._activeFilter});
   }
 
-  recoveryListeners() {}
+  recoveryListeners() {
+    this._setFilterChangeHandler();
+  }
 
-  rerender() {}
+  rerender() {
+    super.rerender();
+    this._resetChart();
+    this._renderChart();
+  }
 
   _renderChart() {
     const statisticCtx = this.getElement().querySelector(`.statistic__chart`);
-    renderGenresChart(statisticCtx, this._watchedMovies);
+    this._chart = renderGenresChart(statisticCtx, this._moviesForPeriod);
+  }
+
+  _resetChart() {
+    if (this._chart) {
+      this._chart.destroy();
+      this._chart = null;
+    }
+  }
+
+  _setFilterChangeHandler() {
+    this.getElement().querySelector(`.statistic__filters`).addEventListener(`change`, (evt) => {
+      if (evt.target.tagName !== `INPUT`) {
+        return;
+      }
+      this._activeFilter = evt.target.value;
+      this._moviesForPeriod = getMoviesByStatisticsFilter(this._activeFilter, this._watchedMovies);
+      this.rerender();
+    });
   }
 }
