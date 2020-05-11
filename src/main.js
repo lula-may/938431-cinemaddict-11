@@ -33,6 +33,7 @@ const siteNavComponent = new SiteNavComponent();
 siteNavComponent.setOnChangeHandler((navItem) => {
   if (navItem === NavType.STATS) {
     pageController.hide();
+    statisticsComponent.update();
     statisticsComponent.show();
   } else {
     statisticsComponent.hide();

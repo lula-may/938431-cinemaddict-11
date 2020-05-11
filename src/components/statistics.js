@@ -36,13 +36,15 @@ const getSortedGenres = (allGenres) => allGenres.filter(isUniqItem)
   });
 
 const getDateFromByFilter = (filter) => {
+  if (filter === StatisticsFilterType.ALL) {
+    return null;
+  }
   let dateFrom = moment();
   switch (filter) {
     case StatisticsFilterType.TODAY:
       break;
     case StatisticsFilterType.WEEK:
       dateFrom.subtract(7, `days`);
-      resetTime(dateFrom);
       break;
     case StatisticsFilterType.MONTH:
       dateFrom.subtract(1, `months`);
@@ -52,10 +54,8 @@ const getDateFromByFilter = (filter) => {
       dateFrom.subtract(1, `years`);
       resetTime(dateFrom);
       break;
-    default:
-      dateFrom = null;
   }
-  return dateFrom;
+  return resetTime(dateFrom);
 };
 
 const getMoviesByStatisticsFilter = (filter, movies) => {
@@ -95,9 +95,9 @@ const getStatisticsTemplate = ({userRank, movies, activeFilter}) => {
   const filtersMarkup = getFiltersMarkup(activeFilter);
   const amount = movies.length;
   const totalDuration = moment.duration(getTotalDuration(movies), `minutes`);
-  const hours = totalDuration.hours();
+  const hours = Math.floor(totalDuration.asHours());
   const minutes = totalDuration.minutes();
-  const topGenre = getSortedGenres(getAllMoviesGenres(movies))[0];
+  const topGenre = getSortedGenres(getAllMoviesGenres(movies))[0] || ``;
 
   return (
     `<section class="statistic">
@@ -209,11 +209,12 @@ export default class Statistics extends AbstractSmartComponent {
   constructor(moviesModel) {
     super();
     this._moviesModel = moviesModel;
-    this._watchedMovies = getFilmsByFilter(FilterType.HISTORY, this._moviesModel.getAllMovies());
-    this._moviesForPeriod = [].concat(this._watchedMovies);
+    this._watchedMovies = [];
+    this._moviesForPeriod = [];
     this._activeFilter = StatisticsFilterType.ALL;
 
-    this._chart = this._renderChart();
+    this._chart = null;
+    this._renderChart();
     this._setFilterChangeHandler();
   }
 
@@ -231,6 +232,13 @@ export default class Statistics extends AbstractSmartComponent {
     super.rerender();
     this._resetChart();
     this._renderChart();
+  }
+
+  update() {
+    this._watchedMovies = getFilmsByFilter(FilterType.HISTORY, this._moviesModel.getAllMovies());
+    this._moviesForPeriod = [].concat(this._watchedMovies);
+    this._activeFilter = StatisticsFilterType.ALL;
+    this.rerender();
   }
 
   _renderChart() {
