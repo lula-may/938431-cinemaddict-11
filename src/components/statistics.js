@@ -48,11 +48,9 @@ const getDateFromByFilter = (filter) => {
       break;
     case StatisticsFilterType.MONTH:
       dateFrom.subtract(1, `months`);
-      resetTime(dateFrom);
       break;
     case StatisticsFilterType.YEAR:
       dateFrom.subtract(1, `years`);
-      resetTime(dateFrom);
       break;
   }
   return resetTime(dateFrom);
