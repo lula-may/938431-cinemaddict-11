@@ -11,7 +11,7 @@ import {getComments} from "./mock/comments.js";
 import {RenderPosition, render} from "./utils/render.js";
 import {NavType, FilterType} from "./const.js";
 
-const FILMS_AMOUNT = 40;
+const FILMS_AMOUNT = 20;
 
 const films = generateFilms(FILMS_AMOUNT);
 const comments = getComments();

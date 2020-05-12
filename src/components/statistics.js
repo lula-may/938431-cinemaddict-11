@@ -17,7 +17,7 @@ const StatisticsFilterType = {
   YEAR: `year`
 };
 
-const isUniqItem = (item, index, items) => {
+const isUniqueItem = (item, index, items) => {
   return items.indexOf(item) === index;
 };
 
@@ -30,7 +30,7 @@ const getAllMoviesGenres = (movies) => movies.reduce((acc, movie) => {
   return acc;
 }, []);
 
-const getSortedGenres = (allGenres) => allGenres.filter(isUniqItem)
+const getSortedGenres = (allGenres) => allGenres.filter(isUniqueItem)
   .sort((left, right) => {
     return getSameItemsAmount(right, allGenres) - getSameItemsAmount(left, allGenres);
   });
