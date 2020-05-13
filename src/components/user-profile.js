@@ -1,8 +1,9 @@
 import AbstractComponent from "./abstract-component.js";
+
 const NOVICE = 10;
 const FAN = 20;
 
-const getUserTitle = (number) => {
+export const getUserTitle = (number) => {
   if (number > FAN) {
     return `Movie Buff`;
   }

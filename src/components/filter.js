@@ -1,5 +1,6 @@
 import AbstractComponent from "./abstract-component";
 import {FilterType} from "../const.js";
+import {capitalizeFirstLetter} from "../utils/common.js";
 
 const FILTER_PREFIX = `filter__`;
 
@@ -8,10 +9,8 @@ const getFilterNameById = (id) => id.replace(FILTER_PREFIX, ``);
 const getFilterText = (filterType) => {
   if (filterType === FilterType.ALL) {
     return `All movies`;
-  } else {
-    const firstLetter = filterType.slice(0, 1).toUpperCase();
-    return firstLetter + filterType.slice(1);
   }
+  return capitalizeFirstLetter(filterType);
 };
 
 const getFilterTemplate = (filters) => {

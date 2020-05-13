@@ -11,12 +11,22 @@ const formatReleaseDate = (date) => {
 const formatRunTime = (duration) => {
   const runTime = moment.duration(duration, `minutes`);
   const hours = runTime.hours();
+  const isHour = hours > 0;
   const minutes = runTime.minutes();
-  return `${hours}h ${minutes}m`;
+  return `${isHour ? `${hours}h ` : ``}${minutes}m`;
 };
 
 const humanizeDate = (date) => {
   return moment(date).fromNow();
 };
 
-export {formatDate, formatReleaseDate, formatRunTime, humanizeDate};
+const capitalizeFirstLetter = (text) => {
+  const firstLetter = text.slice(0, 1).toUpperCase();
+  return firstLetter + text.slice(1);
+};
+
+const resetTime = (date) => {
+  return moment(date).hours(0).minutes(0).seconds(0);
+};
+
+export {formatDate, formatReleaseDate, formatRunTime, humanizeDate, capitalizeFirstLetter, resetTime};

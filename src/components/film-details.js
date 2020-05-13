@@ -139,10 +139,6 @@ export default class FilmDetails extends AbstractComponent {
   constructor(film) {
     super();
     this._film = film;
-    this._closeClickHandler = null;
-    this._watchlistHandler = null;
-    this._watchedHandler = null;
-    this._favoriteHandler = null;
   }
 
   getTemplate() {
@@ -152,21 +148,17 @@ export default class FilmDetails extends AbstractComponent {
   setCloseButtonClickHandler(handler) {
     const closeButtonElement = this.getElement().querySelector(`.film-details__close-btn`);
     closeButtonElement.addEventListener(`click`, handler);
-    this._closeClickHandler = handler;
   }
 
   setToWatchlistButtonChangeHandler(handler) {
     this.getElement().querySelector(`#watchlist`).addEventListener(`change`, handler);
-    this._watchlistHandler = handler;
   }
 
   setWatchedButtonChangeHandler(handler) {
     this.getElement().querySelector(`#watched`).addEventListener(`change`, handler);
-    this._watchedHandler = handler;
   }
 
   setFavoriteButtonChangeHandler(handler) {
     this.getElement().querySelector(`#favorite`).addEventListener(`change`, handler);
-    this._favoriteHandler = handler;
   }
 }
