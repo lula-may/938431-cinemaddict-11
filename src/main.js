@@ -1,3 +1,4 @@
+import API from "./api.js";
 import CommentsModel from "./models/comments.js";
 import FilterController, {getFilmsByFilter} from "./controllers/filter.js";
 import FooterStatComponent from "./components/footer-stat.js";
@@ -11,25 +12,28 @@ import {getComments} from "./mock/comments.js";
 import {RenderPosition, render} from "./utils/render.js";
 import {NavType, FilterType} from "./const.js";
 
-const FILMS_AMOUNT = 20;
+// const FILMS_AMOUNT = 20;
+const AUTHORIZATION = `Basic f8Lid33jXHpo4/?`;
+const END_POINT = `https://11.ecmascript.pages.academy/cinemaddict`;
 
-const films = generateFilms(FILMS_AMOUNT);
+// const films = generateFilms(FILMS_AMOUNT);
 const comments = getComments();
-const userLevel = getFilmsByFilter(FilterType.HISTORY, films).length;
+
 const bodyElement = document.querySelector(`body`);
 const pageHeaderElement = bodyElement.querySelector(`.header`);
 const pageMainElement = bodyElement.querySelector(`.main`);
+const footerStatisticsElement = bodyElement.querySelector(`.footer__statistics`);
+
+const api = new API(AUTHORIZATION, END_POINT);
 
 const moviesModel = new MoviesModel();
-moviesModel.setMovies(films);
-
 const commentsModel = new CommentsModel();
-commentsModel.setComments(comments);
 
-render(pageHeaderElement, new UserProfileComponent(userLevel));
-
-// Отрисовываю навигацию с фильтрами
 const siteNavComponent = new SiteNavComponent();
+const statisticsComponent = new StatisticsComponent(moviesModel);
+const filterController = new FilterController(siteNavComponent.getElement(), moviesModel);
+const pageController = new PageController(pageMainElement, bodyElement, moviesModel, commentsModel);
+
 siteNavComponent.setOnChangeHandler((navItem) => {
   if (navItem === NavType.STATS) {
     pageController.hide();
@@ -40,20 +44,26 @@ siteNavComponent.setOnChangeHandler((navItem) => {
     pageController.show();
   }
 });
+
 render(pageMainElement, siteNavComponent);
-
-const filterController = new FilterController(siteNavComponent.getElement(), moviesModel);
-filterController.render();
-
-// Отрисовываю основное содержимое страницы
-const pageController = new PageController(pageMainElement, bodyElement, moviesModel, commentsModel);
-pageController.render();
-
-// Отрисовываю блок со статистикой
-const statisticsComponent = new StatisticsComponent(moviesModel);
+// Экран со статистикой
 render(pageMainElement, statisticsComponent);
 statisticsComponent.hide();
 
+api.getMovies()
+.then((movies) => {
+  moviesModel.setMovies(movies);
+  const userLevel = getFilmsByFilter(FilterType.HISTORY, movies).length;
+  render(pageHeaderElement, new UserProfileComponent(userLevel));
+  filterController.render();
+  debugger;
+  pageController.render();
+  render(footerStatisticsElement, new FooterStatComponent(movies.length), RenderPosition.AFTERBEGIN);
+});
+// Навигация с фильтрами
+// commentsModel.setComments(comments);
+
+// Основное содержимое страницы
+
+
 // Статистика в футере
-const footerStatisticsElement = bodyElement.querySelector(`.footer__statistics`);
-render(footerStatisticsElement, new FooterStatComponent(films.length), RenderPosition.AFTERBEGIN);
