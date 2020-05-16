@@ -27,8 +27,44 @@ export default class Movie {
   _parseUserInfo(info) {
     this.isInHistory = info[`already_watched`];
     this.isFavorite = info[`favorite`];
-    this.watchingDate = info[`watching_date`];
-    this.isInWatchList = info[`watchlist`];
+    this.watchingDate = info[`watching_date`] ? new Date(info[`watching_date`]) : null;
+    this.isInWatchlist = info[`watchlist`];
+  }
+
+  convertToRaw() {
+    const release = {
+      "date": this.date.toISOString(),
+      "release_country": this.country
+    };
+
+    const filmInfo = {
+      "actors": this.actors,
+      "age_rating": this.age,
+      "alternative_title": this.originalTitle,
+      "description": this.description,
+      "director": this.director,
+      "genre": this.genres,
+      "poster": this.poster,
+      "release": release,
+      "runtime": this.duration,
+      "title": this.title,
+      "total_rating": this.rating,
+      "writers": this.writers
+    };
+
+    const userDetails = {
+      "already_watched": this.isInHistory,
+      "favorite": this.isFavorite,
+      "watching_date": this.watchingDate ? this.watchingDate.toISOString() : null,
+      "watchlist": this.isInWatchlist
+    };
+
+    return {
+      "id": this.id,
+      "comments": this.comments,
+      "film_info": filmInfo,
+      "user_details": userDetails
+    };
   }
 
   static parseMovie(movie) {
@@ -37,5 +73,9 @@ export default class Movie {
 
   static parseMovies(movies) {
     return movies.map(Movie.parseMovie);
+  }
+
+  static clone(data) {
+    return new Movie(data.convertToRaw());
   }
 }
