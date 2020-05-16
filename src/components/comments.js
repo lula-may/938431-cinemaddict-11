@@ -1,4 +1,5 @@
 import AbstractSmartComponent from "./abstract-smart-component";
+import CommentComponent from "./comment.js";
 import {EMOTIONS} from "../const.js";
 import {createElement, render} from "../utils/render.js";
 
@@ -22,18 +23,18 @@ const getEmojiListMarkup = () => {
 };
 
 export default class Comments extends AbstractSmartComponent {
-  constructor(id, commentComponents, onCommentsDataChange) {
+  constructor(movie, onCommentsDataChange) {
     super();
-    this._movieId = id;
-    this._commentComponents = commentComponents;
+    this._movie = movie;
+    this._commentsModel = null;
+    this._commentComponents = [];
     this._onCommentsDataChange = onCommentsDataChange;
     this._newComment = Object.assign({}, EMPTY_COMMENT);
 
-    this._subscribeOnEvents();
   }
 
   getTemplate() {
-    const commentsAmount = this._commentComponents.length;
+    const commentsAmount = this._movie.comments.length;
     const emojiListMarkup = getEmojiListMarkup();
 
     return (
@@ -64,12 +65,19 @@ export default class Comments extends AbstractSmartComponent {
     this._subscribeOnEvents();
   }
 
-  renderComments() {
+  renderComments(commentsModel) {
+    this._commentsModel = commentsModel;
     const commentsContainer = this.getElement().querySelector(`.film-details__comments-list`);
 
-    this._commentComponents.forEach((comment) => {
-      render(commentsContainer, comment);
+    this._commentComponents = this._commentsModel.getComments().map((comment) => {
+      return new CommentComponent(this._movie.id, comment);
     });
+
+    this._commentComponents.forEach((component) => {
+      render(commentsContainer, component);
+    });
+
+    this._subscribeOnEvents();
   }
 
   _renderCommentEmoji(emotion) {
@@ -125,5 +133,10 @@ export default class Comments extends AbstractSmartComponent {
   reset() {
     this._newComment = Object.assign({}, EMPTY_COMMENT);
     this.rerender();
+  }
+
+  error() {
+    const errorMessage = `<div>Failed to load comments. Try again later...</div>`;
+    this.getElement().querySelector(`h3`).insertAdjacentHTML(`afterend`, errorMessage);
   }
 }

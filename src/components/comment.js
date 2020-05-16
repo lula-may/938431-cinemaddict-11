@@ -3,9 +3,9 @@ import {humanizeDate} from "../utils/common.js";
 import {encode} from "he";
 
 export default class Comment extends AbstractComponent {
-  constructor(movie, comment) {
+  constructor(movieId, comment) {
     super();
-    this._movie = movie;
+    this._movieId = movieId;
     this._comment = comment;
   }
 
