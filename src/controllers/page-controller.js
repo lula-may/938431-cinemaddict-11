@@ -78,10 +78,13 @@ export default class PageController {
   }
 
   _onDataChange(oldData, newData) {
-    const isSuccess = this._moviesModel.updateMovie(oldData.id, newData);
-    if (isSuccess) {
-      this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(oldData.id, newData));
-    }
+    this._api.updateMovie(oldData.id, newData)
+      .then((updatedData) => {
+        const isSuccess = this._moviesModel.updateMovie(oldData.id, updatedData);
+        if (isSuccess) {
+          this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(oldData.id, updatedData));
+        }
+      });
   }
 
   _onCommentsDataChange(movieId, oldData, newData) {

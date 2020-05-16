@@ -54,7 +54,6 @@ cardsListComponent.showLoadingMessage();
 // Экран со статистикой
 render(pageMainElement, statisticsComponent);
 statisticsComponent.hide();
-debugger;
 api.getMovies()
 .then((movies) => {
   moviesModel.setMovies(movies);
