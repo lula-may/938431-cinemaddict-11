@@ -22,9 +22,9 @@ const getEmojiListMarkup = () => {
 };
 
 export default class Comments extends AbstractSmartComponent {
-  constructor(movie, commentComponents, onCommentsDataChange) {
+  constructor(id, commentComponents, onCommentsDataChange) {
     super();
-    this._movie = movie;
+    this._movieId = id;
     this._commentComponents = commentComponents;
     this._onCommentsDataChange = onCommentsDataChange;
     this._newComment = Object.assign({}, EMPTY_COMMENT);
@@ -85,7 +85,7 @@ export default class Comments extends AbstractSmartComponent {
     // Обработчики нажатия на Delete
     this._commentComponents.forEach((comment) => {
       comment.setDeleteButtonClickHandler(() => {
-        this._onCommentsDataChange(this._movie, comment.getComment(), null);
+        this._onCommentsDataChange(this._movieId, comment.getComment(), null);
       });
     });
 

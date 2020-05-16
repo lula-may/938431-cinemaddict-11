@@ -2,7 +2,9 @@ import CardComponent from "../components/card.js";
 import CommentsComponent from "../components/comments.js";
 import CommentComponent from "../components/comment.js";
 import FilmDetailsComponent from "../components/film-details.js";
+import CommentsModel from "../models/comments.js";
 import {render, replace, remove} from "../utils/render.js";
+
 
 const Mode = {
   DEFAULT: `default`,
@@ -10,10 +12,10 @@ const Mode = {
 };
 
 export default class MovieController {
-  constructor(container, popupContainer, commentsModel, onDataChange, onViewChange, onCommentsDataChange) {
+  constructor(container, popupContainer, onDataChange, onViewChange, onCommentsDataChange, api) {
     this._container = container;
     this._popupContainer = popupContainer;
-
+    this._api = api;
     this._cardComponent = null;
     this._filmDetailsComponent = null;
     this._updatedFilmDetailsComponent = null;
@@ -21,7 +23,7 @@ export default class MovieController {
     this._commentComponents = [];
 
     this._mode = Mode.DEFAULT;
-    this._commentsModel = commentsModel;
+    this._commentsModel = null;
     this._movie = null;
 
     this._onDataChange = onDataChange;
@@ -33,14 +35,19 @@ export default class MovieController {
 
   _openPopup() {
     this._onViewChange();
+
     render(this._popupContainer, this._filmDetailsComponent);
     this._mode = Mode.POPUP;
     document.addEventListener(`keydown`, this._onEscPress);
-
-    // Отрисовываем комментарии и навешиваем обработчики
     const commentsContainer = this._popupContainer.querySelector(`.form-details__bottom-container`);
-    render(commentsContainer, this._commentsComponent);
     this._setPopupHandlers(this._movie);
+
+    this._api.getComment(this._movie.id)
+      .then((comments) => {
+        this._createComments(comments);
+        // Отрисовываем комментарии и навешиваем обработчики
+        render(commentsContainer, this._commentsComponent);
+      });
   }
 
   _closePopup() {
@@ -114,7 +121,7 @@ export default class MovieController {
   _createFilmDetailsComponent() {
     const movie = this._movie;
     const oldFilmDetailsComponent = this._filmDetailsComponent;
-    this._updatedFilmDetailsComponent = new FilmDetailsComponent(movie, this._commentComponents, this._onCommentsDataChange);
+    this._updatedFilmDetailsComponent = new FilmDetailsComponent(movie);
 
     if (!oldFilmDetailsComponent || this._mode === Mode.DEFAULT) {
       this._filmDetailsComponent = this._updatedFilmDetailsComponent;
@@ -122,14 +129,15 @@ export default class MovieController {
     }
   }
 
-  _renderComments() {
-    const movieComments = this._commentsModel.getCommentsByIds(this._movie.comments);
-    this._commentComponents = movieComments.map((comment) => {
+  _createComments(comments) {
+    this._commentsModel = new CommentsModel();
+    this._commentsModel.setComments(comments);
+    this._commentComponents = comments.map((comment) => {
       return new CommentComponent(this._movie, comment);
     });
     const oldCommentsComponent = this._commentsComponent;
 
-    this._commentsComponent = new CommentsComponent(this._movie, this._commentComponents, this._onCommentsDataChange);
+    this._commentsComponent = new CommentsComponent(this._movie.id, this._commentComponents, this._onCommentsDataChange);
     if (oldCommentsComponent) {
       replace(this._commentsComponent, oldCommentsComponent);
     }
@@ -141,7 +149,7 @@ export default class MovieController {
     this._movie = movie;
     this._renderCard();
     this._createFilmDetailsComponent();
-    this._renderComments();
+    // this._renderComments();
   }
 
   rerender(id, newData) {

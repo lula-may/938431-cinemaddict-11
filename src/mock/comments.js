@@ -28,7 +28,7 @@ const getRandomCommentDate = () => {
 
 let comments = [];
 
-const getFilmComments = () => {
+export const getFilmComments = () => {
   const amount = getRandomInteger(0, MAX_COMMENTS_AMOUNT);
   const newComments = new Array(amount);
   return newComments

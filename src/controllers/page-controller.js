@@ -14,18 +14,19 @@ const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
 const CARDS_AMOUNT_EXTRA = 2;
 
 
-const renderCards = (container, cards, commentsModel, popupContainer, onDataChange, onViewChange, onCommentsDataChange) => {
+const renderCards = (container, cards, popupContainer, onDataChange, onViewChange, onCommentsDataChange, api) => {
   return cards.map((film) => {
-    const movieController = new MovieController(container, popupContainer, commentsModel, onDataChange, onViewChange, onCommentsDataChange);
+    const movieController = new MovieController(container, popupContainer, onDataChange, onViewChange, onCommentsDataChange, api);
     movieController.render(film);
     return movieController;
   });
 };
 
 export default class PageController {
-  constructor(container, popupContainer, moviesModel, commentsModel) {
+  constructor(container, popupContainer, moviesModel, api) {
     this._moviesModel = moviesModel;
-    this._commentsModel = commentsModel;
+    // this._commentsModel = commentsModel;
+    this._api = api;
     this._showedMovieControllers = [];
     this._showedExtraMovieControllers = [];
     this._container = container;
@@ -83,7 +84,8 @@ export default class PageController {
     }
   }
 
-  _onCommentsDataChange(movie, oldData, newData) {
+  _onCommentsDataChange(movieId, oldData, newData) {
+    const movie = this._moviesModel.getMovieById(movieId);
     let updatedComments = [];
     // Добавление нового комментария в модель
     if (oldData === null) {
@@ -135,8 +137,8 @@ export default class PageController {
     let count = 0;
     filmListExtraElements.forEach((listElement) => {
       const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
-      const newCards = renderCards(extraFilmsContainer, extraFilms[count], this._commentsModel,
-          this._popupContainer, this._onDataChange, this._onViewChange, this._onCommentsDataChange);
+      const newCards = renderCards(extraFilmsContainer, extraFilms[count], this._popupContainer,
+          this._onDataChange, this._onViewChange, this._onCommentsDataChange);
       this._showedExtraMovieControllers = this._showedExtraMovieControllers.concat(newCards);
       count++;
     });
@@ -151,8 +153,8 @@ export default class PageController {
   _renderMovies(movies) {
     // создаем контроллеры фильмов и отрисовываем карточки
     // Запоминаем контроллеры
-    const newCards = renderCards(this._filmsListContainer, movies.slice(0, this._showingCardsCount), this._commentsModel,
-        this._popupContainer, this._onDataChange, this._onViewChange, this._onCommentsDataChange);
+    const newCards = renderCards(this._filmsListContainer, movies.slice(0, this._showingCardsCount),
+        this._popupContainer, this._onDataChange, this._onViewChange, this._onCommentsDataChange, this._api);
     this._showedMovieControllers = this._showedMovieControllers.concat(newCards);
     this._showingCardsCount = this._showedMovieControllers.length;
   }
