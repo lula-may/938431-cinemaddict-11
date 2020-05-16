@@ -1,6 +1,5 @@
 import CardComponent from "../components/card.js";
 import CommentsComponent from "../components/comments.js";
-import CommentComponent from "../components/comment.js";
 import FilmDetailsComponent from "../components/film-details.js";
 import CommentsModel from "../models/comments.js";
 import {render, replace, remove} from "../utils/render.js";
@@ -41,13 +40,17 @@ export default class MovieController {
     document.addEventListener(`keydown`, this._onEscPress);
     const commentsContainer = this._popupContainer.querySelector(`.form-details__bottom-container`);
     this._setPopupHandlers(this._movie);
+    this._createCommentsComponent();
+    render(commentsContainer, this._commentsComponent);
 
     this._api.getComment(this._movie.id)
       .then((comments) => {
-        this._createComments(comments);
+        this._commentsModel = new CommentsModel();
+        this._commentsModel.setComments(comments);
         // Отрисовываем комментарии и навешиваем обработчики
-        render(commentsContainer, this._commentsComponent);
-      });
+        this._commentsComponent.renderComments(this._commentsModel);
+      })
+      .catch(() => this._commentsComponent.error());
   }
 
   _closePopup() {
@@ -56,7 +59,7 @@ export default class MovieController {
       this._filmDetailsComponent = this._updatedFilmDetailsComponent;
       this._updatedFilmDetailsComponent = null;
     }
-    this._commentsComponent.reset();
+    remove(this._commentsComponent);
     this._mode = Mode.DEFAULT;
   }
 
@@ -129,27 +132,19 @@ export default class MovieController {
     }
   }
 
-  _createComments(comments) {
-    this._commentsModel = new CommentsModel();
-    this._commentsModel.setComments(comments);
-    this._commentComponents = comments.map((comment) => {
-      return new CommentComponent(this._movie, comment);
-    });
+  _createCommentsComponent() {
     const oldCommentsComponent = this._commentsComponent;
+    this._commentsComponent = new CommentsComponent(this._movie, this._onCommentsDataChange);
 
-    this._commentsComponent = new CommentsComponent(this._movie.id, this._commentComponents, this._onCommentsDataChange);
     if (oldCommentsComponent) {
       replace(this._commentsComponent, oldCommentsComponent);
     }
-
-    this._commentsComponent.renderComments();
   }
 
   render(movie) {
     this._movie = movie;
     this._renderCard();
     this._createFilmDetailsComponent();
-    // this._renderComments();
   }
 
   rerender(id, newData) {
