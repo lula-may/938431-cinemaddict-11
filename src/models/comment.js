@@ -4,7 +4,15 @@ export default class Comment {
     this.author = data[`author`];
     this.emotion = data[`emotion`];
     this.text = data[`comment`];
-    this.date = new Date(data[`date`]);
+    this.date = data[`date`] ? new Date(data[`date`]) : null;
+  }
+
+  convertToRaw() {
+    return {
+      "emotion": this.emotion,
+      "comment": this.text,
+      "date": this.date ? this.date.toISOString() : null
+    };
   }
 
   static parseComment(comment) {
@@ -13,5 +21,9 @@ export default class Comment {
 
   static parseComments(comments) {
     return comments.map(Comment.parseComment);
+  }
+
+  static clone(comment) {
+    return new Comment(comment.convertToRaw());
   }
 }

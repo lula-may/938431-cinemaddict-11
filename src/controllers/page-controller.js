@@ -5,6 +5,8 @@ import ShowMoreComponent from "../components/show-more.js";
 import SortComponent, {SortType} from "../components/sort.js";
 import TopRateComponent from "../components/top-rate.js";
 import MovieController from "./movie-controller.js";
+import MovieModel from "../models/movie.js";
+import CommentModel from "../models/comment.js";
 
 import {render, remove} from "../utils/render.js";
 import {getExtraFilms, getSortedFilms} from "../utils/components-data.js";
@@ -88,27 +90,38 @@ export default class PageController {
   }
 
   _onCommentsDataChange(movieId, oldData, newData) {
-    const movie = this._moviesModel.getMovieById(movieId);
-    let updatedComments = [];
-    // Добавление нового комментария в модель
+    // Добавление нового комментария в модели фильма и комментариев
     if (oldData === null) {
-      this._commentsModel.addComment(newData);
-      updatedComments = [].concat(movie.comments, newData.id);
-
+      this._api.addComment(movieId, newData)
+      .then((data) => {
+        const updatedMovie = MovieModel.parseMovie(data.movie);
+        const isSuccess = this._moviesModel.updateMovie(movieId, updatedMovie);
+        if (isSuccess) {
+          this._showedMovieControllers.concat(this._showedExtraMovieControllers)
+          .forEach((controller) => controller.rerender(movieId, updatedMovie));
+        }
+        const updatedComments = CommentModel.parseComments(data.comments);
+        this._showedMovieControllers.concat(this._showedExtraMovieControllers)
+        .forEach((controller) => controller.updateComments(movieId, updatedComments));
+      });
     } else if (newData === null) {
-      // Удаление комментария из модели
-      this._commentsModel.removeComment(oldData.id);
-      const index = movie.comments.findIndex((id) => id === oldData.id);
-      updatedComments = [].concat(movie.comments.slice(0, index), movie.comments.slice(index + 1));
-    }
-
-    // Обновляем модель фильмов
-    const updatedMovie = Object.assign({}, movie, {comments: updatedComments});
-    const isSuccess = this._moviesModel.updateMovie(movie.id, updatedMovie);
-
-    // Перерисовываем контроллер фильма с изменеными данными
-    if (isSuccess) {
-      this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(movie.id, updatedMovie));
+      // Удаление комментария из моделей фильма и комментариев
+      this._api.deleteComment(oldData.id)
+      .then(() => {
+        return this._api.getComments(movieId);
+      })
+      .then((updatedComments) => {
+        const movie = this._moviesModel.getMovieById(movieId);
+        const updatedMovie = MovieModel.clone(movie);
+        updatedMovie.comments = updatedComments;
+        const isSuccess = this._moviesModel.updateMovie(movieId, updatedMovie);
+        if (isSuccess) {
+          this._showedMovieControllers.concat(this._showedExtraMovieControllers)
+          .forEach((controller) => controller.rerender(movieId, updatedMovie));
+        }
+        this._showedMovieControllers.concat(this._showedExtraMovieControllers)
+        .forEach((controller) => controller.updateComments(movieId, updatedComments));
+      });
     }
   }
 

@@ -1,15 +1,15 @@
 import AbstractSmartComponent from "./abstract-smart-component";
 import CommentComponent from "./comment.js";
+import CommentModel from "../models/comment.js";
 import {EMOTIONS} from "../const.js";
 import {createElement, render} from "../utils/render.js";
 
 
-const EMPTY_COMMENT = {
-  id: ``,
-  emotion: ``,
-  date: ``,
-  text: ``,
-};
+const EMPTY_COMMENT = new CommentModel({
+  "emotion": ``,
+  "date": null,
+  "text": ``
+});
 
 const getEmojiListMarkup = () => {
   return EMOTIONS.map((emotion) => {
@@ -29,7 +29,7 @@ export default class Comments extends AbstractSmartComponent {
     this._commentsModel = null;
     this._commentComponents = [];
     this._onCommentsDataChange = onCommentsDataChange;
-    this._newComment = Object.assign({}, EMPTY_COMMENT);
+    this._newComment = CommentModel.clone(EMPTY_COMMENT);
 
   }
 
@@ -70,7 +70,7 @@ export default class Comments extends AbstractSmartComponent {
     const commentsContainer = this.getElement().querySelector(`.film-details__comments-list`);
 
     this._commentComponents = this._commentsModel.getComments().map((comment) => {
-      return new CommentComponent(this._movie.id, comment);
+      return new CommentComponent(this._movieId, comment);
     });
 
     this._commentComponents.forEach((component) => {
@@ -93,7 +93,7 @@ export default class Comments extends AbstractSmartComponent {
     // Обработчики нажатия на Delete
     this._commentComponents.forEach((comment) => {
       comment.setDeleteButtonClickHandler(() => {
-        this._onCommentsDataChange(this._movieId, comment.getComment(), null);
+        this._onCommentsDataChange(this._movie.id, comment.getComment(), null);
       });
     });
 
@@ -119,9 +119,8 @@ export default class Comments extends AbstractSmartComponent {
         return;
       }
       this._newComment.date = new Date();
-      this._newComment.id = String(Math.round(new Date() * Math.random()));
-      this._onCommentsDataChange(this._movie, null, this._newComment);
-      this._newComment = Object.assign({}, EMPTY_COMMENT);
+      this._onCommentsDataChange(this._movie.id, null, this._newComment);
+      this._newComment = CommentModel.clone(EMPTY_COMMENT);
     });
   }
 

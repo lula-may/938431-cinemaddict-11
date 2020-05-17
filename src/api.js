@@ -38,7 +38,7 @@ export default class API {
       .then(Movie.parseMovie);
   }
 
-  getComment(movieId) {
+  getComments(movieId) {
     return this._load({url: `comments/${movieId}`})
       .then((response) => response.json())
       .then(Comment.parseComments);
@@ -51,8 +51,7 @@ export default class API {
       body: JSON.stringify(comment.convertToRaw()),
       headers: new Headers({"Content-Type": `application/json`})
     })
-    .then((response) => response.json())
-    .then(Comment.parseComment);
+    .then((response) => response.json());
   }
 
   deleteComment(id) {

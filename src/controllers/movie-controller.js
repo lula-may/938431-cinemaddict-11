@@ -44,7 +44,7 @@ export default class MovieController {
     this._createCommentsComponent();
     render(commentsContainer, this._commentsComponent);
 
-    this._api.getComment(this._movie.id)
+    this._api.getComments(this._movie.id)
       .then((comments) => {
         this._commentsModel = new CommentsModel();
         this._commentsModel.setComments(comments);
@@ -152,6 +152,16 @@ export default class MovieController {
     if (oldCommentsComponent) {
       replace(this._commentsComponent, oldCommentsComponent);
     }
+  }
+
+  updateComments(movieId, comments) {
+    if (this._movie.id !== movieId) {
+      return;
+    }
+    this._createCommentsComponent();
+    this._commentsModel = new CommentsModel();
+    this._commentsModel.setComments(comments);
+    this._commentsComponent.renderComments(this._commentsModel);
   }
 
   render(movie) {
