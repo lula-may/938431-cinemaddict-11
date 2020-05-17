@@ -32,7 +32,7 @@ const cardsListComponent = new CardsListComponent();
 
 const statisticsComponent = new StatisticsComponent(moviesModel);
 const filterController = new FilterController(siteNavComponent.getElement(), moviesModel);
-const pageController = new PageController(pageMainElement, sortComponent, moviesModel, api);
+const pageController = new PageController(pageMainElement, bodyElement, moviesModel, api);
 
 siteNavComponent.setOnChangeHandler((navItem) => {
   if (navItem === NavType.STATS) {
