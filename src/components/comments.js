@@ -109,7 +109,8 @@ export default class Comments extends AbstractSmartComponent {
     });
 
     // Обработчик ввода текста комментария
-    element.querySelector(`.film-details__comment-input`).addEventListener(`change`, (evt) => {
+    const textareaElement = element.querySelector(`.film-details__comment-input`);
+    textareaElement.addEventListener(`change`, (evt) => {
       this._newComment.text = evt.target.value;
     });
 
@@ -118,8 +119,10 @@ export default class Comments extends AbstractSmartComponent {
       if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
         return;
       }
+      textareaElement.readOnly = true;
       this._newComment.date = new Date();
-      this._onCommentsDataChange(this._movie.id, null, this._newComment);
+      this._onCommentsDataChange(this._movie.id, null, this._newComment)
+      .catch();
       this._newComment = CommentModel.clone(EMPTY_COMMENT);
     });
   }

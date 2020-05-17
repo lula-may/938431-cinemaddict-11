@@ -103,6 +103,18 @@ export default class PageController {
         const updatedComments = CommentModel.parseComments(data.comments);
         this._showedMovieControllers.concat(this._showedExtraMovieControllers)
         .forEach((controller) => controller.updateComments(movieId, updatedComments));
+      })
+      .catch(() => {
+        const formElement = document.querySelector(`.film-details__inner`);
+        const textareaElement = formElement.querySelector(`textarea`);
+        textareaElement.style.boxShadow = `inset 0 0 5px 5px rgba(255, 0, 0, 1)`;
+        formElement.classList.add(`shake`);
+        setTimeout(() => {
+          formElement.classList.remove(`shake`);
+          textareaElement.readOnly = false;
+          textareaElement.style.boxShadow = ``;
+
+        }, 600);
       });
     } else if (newData === null) {
       // Удаление комментария из моделей фильма и комментариев
