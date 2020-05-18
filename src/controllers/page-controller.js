@@ -86,6 +86,9 @@ export default class PageController {
         if (isSuccess) {
           this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(oldData.id, updatedData));
         }
+      })
+      .catch(() => {
+        this._showedMovieControllers.forEach((controller) => controller.resetMovieControls(oldData.id));
       });
   }
 

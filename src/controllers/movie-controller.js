@@ -189,6 +189,7 @@ export default class MovieController {
       return;
     }
     this.render(newData);
+    this._enableMovieControl();
   }
 
   destroy() {
@@ -203,5 +204,26 @@ export default class MovieController {
       return;
     }
     this._closePopup();
+  }
+
+  _enableMovieControl() {
+    const disabledControl = (this._mode === Mode.DEFAULT) ?
+      this._cardComponent.getElement().querySelector(`.film-card__controls-item:disabled`)
+      : this._filmDetailsComponent.getElement().querySelector(`.film-details__control-input:disabled`);
+
+    if (disabledControl) {
+      disabledControl.disabled = false;
+    }
+    return disabledControl;
+  }
+
+  resetMovieControls(id) {
+    if (this._movie.id !== id) {
+      return;
+    }
+    const control = this._enableMovieControl();
+    if (this._mode === Mode.POPUP) {
+      control.checked = !control.checked;
+    }
   }
 }

@@ -151,14 +151,23 @@ export default class FilmDetails extends AbstractComponent {
   }
 
   setToWatchlistButtonChangeHandler(handler) {
-    this.getElement().querySelector(`#watchlist`).addEventListener(`change`, handler);
+    this.getElement().querySelector(`#watchlist`).addEventListener(`change`, (evt) => {
+      evt.target.disabled = true;
+      handler();
+    });
   }
 
   setWatchedButtonChangeHandler(handler) {
-    this.getElement().querySelector(`#watched`).addEventListener(`change`, handler);
+    this.getElement().querySelector(`#watched`).addEventListener(`change`, (evt) => {
+      evt.target.disabled = true;
+      handler();
+    });
   }
 
   setFavoriteButtonChangeHandler(handler) {
-    this.getElement().querySelector(`#favorite`).addEventListener(`change`, handler);
+    this.getElement().querySelector(`#favorite`).addEventListener(`change`, (evt) => {
+      evt.target.disabled = true;
+      handler();
+    });
   }
 }
