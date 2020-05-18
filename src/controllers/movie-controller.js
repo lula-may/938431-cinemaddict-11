@@ -51,7 +51,9 @@ export default class MovieController {
         // Отрисовываем комментарии и навешиваем обработчики
         this._commentsComponent.renderComments(this._commentsModel);
       })
-      .catch(() => this._commentsComponent.error());
+      .catch(() => {
+        this._commentsComponent.onLoadCommentsError();
+      });
   }
 
   _closePopup() {
@@ -162,6 +164,18 @@ export default class MovieController {
     this._commentsModel = new CommentsModel();
     this._commentsModel.setComments(comments);
     this._commentsComponent.renderComments(this._commentsModel);
+  }
+
+  onAddCommentError() {
+    if (this._mode === Mode.POPUP) {
+      this._commentsComponent.onAddCommentError();
+    }
+  }
+
+  onDeleteCommentError(id) {
+    if (this._mode === Mode.POPUP) {
+      this._commentsComponent.onDeleteCommentError(id);
+    }
   }
 
   render(movie) {
