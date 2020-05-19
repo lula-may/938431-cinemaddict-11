@@ -186,7 +186,12 @@ export default class PageController {
         }
       })
       .catch(() => {
-        allControllers.forEach((controller) => controller.resetMovieControls(oldData.id));
+        for (let controller of allControllers) {
+          const isSuccess = controller.undoChanges(oldData.id);
+          if (isSuccess) {
+            break;
+          }
+        }
       });
   }
 
@@ -207,7 +212,12 @@ export default class PageController {
         this._updateMostCommentedMovies();
       })
       .catch(() => {
-        allControllers.forEach((controller) => controller.onAddCommentError());
+        for (let controller of allControllers) {
+          const isSuccess = controller.onAddCommentError();
+          if (isSuccess) {
+            break;
+          }
+        }
       });
 
     } else if (newData === null) {
@@ -228,7 +238,12 @@ export default class PageController {
         this._updateMostCommentedMovies();
       })
       .catch(() => {
-        allControllers.forEach((controller) => controller.onDeleteCommentError(oldData.id));
+        for (let controller of allControllers) {
+          const isSuccess = controller.onDeleteCommentError(oldData.id);
+          if (isSuccess) {
+            break;
+          }
+        }
       });
     }
   }
