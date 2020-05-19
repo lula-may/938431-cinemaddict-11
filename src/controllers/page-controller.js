@@ -5,6 +5,8 @@ import ShowMoreComponent from "../components/show-more.js";
 import SortComponent, {SortType} from "../components/sort.js";
 import TopRateComponent from "../components/top-rate.js";
 import MovieController from "./movie-controller.js";
+import MovieModel from "../models/movie.js";
+import CommentModel from "../models/comment.js";
 
 import {render, remove} from "../utils/render.js";
 import {getExtraFilms, getSortedFilms} from "../utils/components-data.js";
@@ -14,18 +16,19 @@ const SHOWING_CARDS_AMOUNT_BY_BUTTON = 5;
 const CARDS_AMOUNT_EXTRA = 2;
 
 
-const renderCards = (container, cards, commentsModel, popupContainer, onDataChange, onViewChange, onCommentsDataChange) => {
+const renderCards = (container, cards, popupContainer, onDataChange, onViewChange, onCommentsDataChange, api) => {
   return cards.map((film) => {
-    const movieController = new MovieController(container, popupContainer, commentsModel, onDataChange, onViewChange, onCommentsDataChange);
+    const movieController = new MovieController(container, popupContainer, onDataChange, onViewChange, onCommentsDataChange, api);
     movieController.render(film);
     return movieController;
   });
 };
 
 export default class PageController {
-  constructor(container, popupContainer, moviesModel, commentsModel) {
+  constructor(container, popupContainer, moviesModel, api) {
     this._moviesModel = moviesModel;
-    this._commentsModel = commentsModel;
+    // this._commentsModel = commentsModel;
+    this._api = api;
     this._showedMovieControllers = [];
     this._showedExtraMovieControllers = [];
     this._container = container;
@@ -77,33 +80,58 @@ export default class PageController {
   }
 
   _onDataChange(oldData, newData) {
-    const isSuccess = this._moviesModel.updateMovie(oldData.id, newData);
-    if (isSuccess) {
-      this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(oldData.id, newData));
-    }
+    this._api.updateMovie(oldData.id, newData)
+      .then((updatedData) => {
+        const isSuccess = this._moviesModel.updateMovie(oldData.id, updatedData);
+        if (isSuccess) {
+          this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(oldData.id, updatedData));
+        }
+      })
+      .catch(() => {
+        this._showedMovieControllers.forEach((controller) => controller.resetMovieControls(oldData.id));
+      });
   }
 
-  _onCommentsDataChange(movie, oldData, newData) {
-    let updatedComments = [];
-    // Добавление нового комментария в модель
+  _onCommentsDataChange(movieId, oldData, newData) {
+    // Добавление нового комментария в модели фильма и комментариев
     if (oldData === null) {
-      this._commentsModel.addComment(newData);
-      updatedComments = [].concat(movie.comments, newData.id);
+      this._api.addComment(movieId, newData)
+      .then((data) => {
+        const updatedMovie = MovieModel.parseMovie(data.movie);
+        const isSuccess = this._moviesModel.updateMovie(movieId, updatedMovie);
+        if (isSuccess) {
+          this._showedMovieControllers.concat(this._showedExtraMovieControllers)
+          .forEach((controller) => controller.rerender(movieId, updatedMovie));
+        }
+        const updatedComments = CommentModel.parseComments(data.comments);
+        this._showedMovieControllers.concat(this._showedExtraMovieControllers)
+        .forEach((controller) => controller.updateComments(movieId, updatedComments));
+      })
+      .catch(() => {
+        this._showedMovieControllers.forEach((controller) => controller.onAddCommentError());
+      });
 
     } else if (newData === null) {
-      // Удаление комментария из модели
-      this._commentsModel.removeComment(oldData.id);
-      const index = movie.comments.findIndex((id) => id === oldData.id);
-      updatedComments = [].concat(movie.comments.slice(0, index), movie.comments.slice(index + 1));
-    }
-
-    // Обновляем модель фильмов
-    const updatedMovie = Object.assign({}, movie, {comments: updatedComments});
-    const isSuccess = this._moviesModel.updateMovie(movie.id, updatedMovie);
-
-    // Перерисовываем контроллер фильма с изменеными данными
-    if (isSuccess) {
-      this._showedMovieControllers.concat(this._showedExtraMovieControllers).forEach((controller) => controller.rerender(movie.id, updatedMovie));
+      // Удаление комментария из моделей фильма и комментариев
+      this._api.deleteComment(oldData.id)
+      .then(() => {
+        return this._api.getComments(movieId);
+      })
+      .then((updatedComments) => {
+        const movie = this._moviesModel.getMovieById(movieId);
+        const updatedMovie = MovieModel.clone(movie);
+        updatedMovie.comments = updatedComments;
+        const isSuccess = this._moviesModel.updateMovie(movieId, updatedMovie);
+        if (isSuccess) {
+          this._showedMovieControllers.concat(this._showedExtraMovieControllers)
+          .forEach((controller) => controller.rerender(movieId, updatedMovie));
+        }
+        this._showedMovieControllers.concat(this._showedExtraMovieControllers)
+        .forEach((controller) => controller.updateComments(movieId, updatedComments));
+      })
+      .catch(() => {
+        this._showedMovieControllers.forEach((controller) => controller.onDeleteCommentError(oldData.id));
+      });
     }
   }
 
@@ -135,8 +163,8 @@ export default class PageController {
     let count = 0;
     filmListExtraElements.forEach((listElement) => {
       const extraFilmsContainer = listElement.querySelector(`.films-list__container`);
-      const newCards = renderCards(extraFilmsContainer, extraFilms[count], this._commentsModel,
-          this._popupContainer, this._onDataChange, this._onViewChange, this._onCommentsDataChange);
+      const newCards = renderCards(extraFilmsContainer, extraFilms[count], this._popupContainer,
+          this._onDataChange, this._onViewChange, this._onCommentsDataChange);
       this._showedExtraMovieControllers = this._showedExtraMovieControllers.concat(newCards);
       count++;
     });
@@ -151,8 +179,8 @@ export default class PageController {
   _renderMovies(movies) {
     // создаем контроллеры фильмов и отрисовываем карточки
     // Запоминаем контроллеры
-    const newCards = renderCards(this._filmsListContainer, movies.slice(0, this._showingCardsCount), this._commentsModel,
-        this._popupContainer, this._onDataChange, this._onViewChange, this._onCommentsDataChange);
+    const newCards = renderCards(this._filmsListContainer, movies.slice(0, this._showingCardsCount),
+        this._popupContainer, this._onDataChange, this._onViewChange, this._onCommentsDataChange, this._api);
     this._showedMovieControllers = this._showedMovieControllers.concat(newCards);
     this._showingCardsCount = this._showedMovieControllers.length;
   }

@@ -25,7 +25,7 @@ const getCardTemplate = (film) => {
         <span class="film-card__duration">${runTime}</span>
         <span class="film-card__genre">${genre}</span>
       </p>
-      <img src="./images/posters/${poster}" alt="" class="film-card__poster">
+      <img src="./${poster}" alt="" class="film-card__poster">
       <p class="film-card__description">${descriptionPreview}</p>
       <a class="film-card__comments">${comments.length} comments</a>
       <form class="film-card__controls">
@@ -62,17 +62,27 @@ export default class Card extends AbstractComponent {
   }
 
   setToWatchlistButtonClickHandler(handler) {
-    this.getElement().querySelector(`.film-card__controls-item--add-to-watchlist`)
-      .addEventListener(`click`, handler);
+    const button = this.getElement().querySelector(`.film-card__controls-item--add-to-watchlist`);
+
+    button.addEventListener(`click`, () => {
+      button.disabled = true;
+      handler();
+    });
   }
 
   setWatchedButtonClickHandler(handler) {
-    this.getElement().querySelector(`.film-card__controls-item--mark-as-watched`)
-      .addEventListener(`click`, handler);
+    const button = this.getElement().querySelector(`.film-card__controls-item--mark-as-watched`);
+    button.addEventListener(`click`, () => {
+      button.disabled = true;
+      handler();
+    });
   }
 
   setFavoriteButtonClickHandler(handler) {
-    this.getElement().querySelector(`.film-card__controls-item--favorite`)
-      .addEventListener(`click`, handler);
+    const button = this.getElement().querySelector(`.film-card__controls-item--favorite`);
+    button.addEventListener(`click`, () => {
+      button.disabled = true;
+      handler();
+    });
   }
 }

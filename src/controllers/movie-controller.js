@@ -1,8 +1,10 @@
 import CardComponent from "../components/card.js";
 import CommentsComponent from "../components/comments.js";
-import CommentComponent from "../components/comment.js";
 import FilmDetailsComponent from "../components/film-details.js";
+import MovieModel from "../models/movie.js";
+import CommentsModel from "../models/comments.js";
 import {render, replace, remove} from "../utils/render.js";
+
 
 const Mode = {
   DEFAULT: `default`,
@@ -10,10 +12,10 @@ const Mode = {
 };
 
 export default class MovieController {
-  constructor(container, popupContainer, commentsModel, onDataChange, onViewChange, onCommentsDataChange) {
+  constructor(container, popupContainer, onDataChange, onViewChange, onCommentsDataChange, api) {
     this._container = container;
     this._popupContainer = popupContainer;
-
+    this._api = api;
     this._cardComponent = null;
     this._filmDetailsComponent = null;
     this._updatedFilmDetailsComponent = null;
@@ -21,7 +23,7 @@ export default class MovieController {
     this._commentComponents = [];
 
     this._mode = Mode.DEFAULT;
-    this._commentsModel = commentsModel;
+    this._commentsModel = null;
     this._movie = null;
 
     this._onDataChange = onDataChange;
@@ -33,14 +35,25 @@ export default class MovieController {
 
   _openPopup() {
     this._onViewChange();
+
     render(this._popupContainer, this._filmDetailsComponent);
     this._mode = Mode.POPUP;
     document.addEventListener(`keydown`, this._onEscPress);
-
-    // Отрисовываем комментарии и навешиваем обработчики
     const commentsContainer = this._popupContainer.querySelector(`.form-details__bottom-container`);
-    render(commentsContainer, this._commentsComponent);
     this._setPopupHandlers(this._movie);
+    this._createCommentsComponent();
+    render(commentsContainer, this._commentsComponent);
+
+    this._api.getComments(this._movie.id)
+      .then((comments) => {
+        this._commentsModel = new CommentsModel();
+        this._commentsModel.setComments(comments);
+        // Отрисовываем комментарии и навешиваем обработчики
+        this._commentsComponent.renderComments(this._commentsModel);
+      })
+      .catch(() => {
+        this._commentsComponent.onLoadCommentsError();
+      });
   }
 
   _closePopup() {
@@ -49,7 +62,7 @@ export default class MovieController {
       this._filmDetailsComponent = this._updatedFilmDetailsComponent;
       this._updatedFilmDetailsComponent = null;
     }
-    this._commentsComponent.reset();
+    remove(this._commentsComponent);
     this._mode = Mode.DEFAULT;
   }
 
@@ -68,16 +81,22 @@ export default class MovieController {
 
   _setPopupHandlers() {
     this._filmDetailsComponent.setToWatchlistButtonChangeHandler(() => {
-      this._onDataChange(this._movie, Object.assign({}, this._movie, {isInWatchlist: !this._movie.isInWatchlist}));
+      const updatedMovie = MovieModel.clone(this._movie);
+      updatedMovie.isInWatchlist = !updatedMovie.isInWatchlist;
+      this._onDataChange(this._movie, updatedMovie);
     });
 
     this._filmDetailsComponent.setWatchedButtonChangeHandler(() => {
-      this._onDataChange(this._movie, Object.assign({}, this._movie, {isInHistory: !this._movie.isInHistory,
-        watchingDate: this._movie.watchingDate ? null : new Date()}));
+      const updatedMovie = MovieModel.clone(this._movie);
+      updatedMovie.isInHistory = !updatedMovie.isInHistory;
+      updatedMovie.watchingDate = updatedMovie.watchingDate ? null : new Date();
+      this._onDataChange(this._movie, updatedMovie);
     });
 
     this._filmDetailsComponent.setFavoriteButtonChangeHandler(() => {
-      this._onDataChange(this._movie, Object.assign({}, this._movie, {isFavorite: !this._movie.isFavorite}));
+      const updatedMovie = MovieModel.clone(this._movie);
+      updatedMovie.isFavorite = !updatedMovie.isFavorite;
+      this._onDataChange(this._movie, updatedMovie);
     });
 
     this._filmDetailsComponent.setCloseButtonClickHandler(this._onCloseButtonClick);
@@ -95,26 +114,32 @@ export default class MovieController {
     }
 
     this._cardComponent.setClickHandlers(() => {
-      this._openPopup(movie);
+      this._openPopup();
     });
     this._cardComponent.setToWatchlistButtonClickHandler(() => {
-      this._onDataChange(movie, Object.assign({}, movie, {isInWatchlist: !movie.isInWatchlist}));
+      const updatedMovie = MovieModel.clone(this._movie);
+      updatedMovie.isInWatchlist = !updatedMovie.isInWatchlist;
+      this._onDataChange(this._movie, updatedMovie);
     });
 
     this._cardComponent.setWatchedButtonClickHandler(() => {
-      this._onDataChange(movie, Object.assign({}, movie, {isInHistory: !movie.isInHistory,
-        watchingDate: movie.watchingDate ? null : new Date()}));
+      const updatedMovie = MovieModel.clone(this._movie);
+      updatedMovie.isInHistory = !updatedMovie.isInHistory;
+      updatedMovie.watchingDate = updatedMovie.watchingDate ? null : new Date();
+      this._onDataChange(this._movie, updatedMovie);
     });
 
     this._cardComponent.setFavoriteButtonClickHandler(() => {
-      this._onDataChange(movie, Object.assign({}, movie, {isFavorite: !movie.isFavorite}));
+      const updatedMovie = MovieModel.clone(this._movie);
+      updatedMovie.isFavorite = !updatedMovie.isFavorite;
+      this._onDataChange(this._movie, updatedMovie);
     });
   }
 
   _createFilmDetailsComponent() {
     const movie = this._movie;
     const oldFilmDetailsComponent = this._filmDetailsComponent;
-    this._updatedFilmDetailsComponent = new FilmDetailsComponent(movie, this._commentComponents, this._onCommentsDataChange);
+    this._updatedFilmDetailsComponent = new FilmDetailsComponent(movie);
 
     if (!oldFilmDetailsComponent || this._mode === Mode.DEFAULT) {
       this._filmDetailsComponent = this._updatedFilmDetailsComponent;
@@ -122,26 +147,41 @@ export default class MovieController {
     }
   }
 
-  _renderComments() {
-    const movieComments = this._commentsModel.getCommentsByIds(this._movie.comments);
-    this._commentComponents = movieComments.map((comment) => {
-      return new CommentComponent(this._movie, comment);
-    });
+  _createCommentsComponent() {
     const oldCommentsComponent = this._commentsComponent;
+    this._commentsComponent = new CommentsComponent(this._movie, this._onCommentsDataChange);
 
-    this._commentsComponent = new CommentsComponent(this._movie, this._commentComponents, this._onCommentsDataChange);
     if (oldCommentsComponent) {
       replace(this._commentsComponent, oldCommentsComponent);
     }
+  }
 
-    this._commentsComponent.renderComments();
+  updateComments(movieId, comments) {
+    if (this._movie.id !== movieId) {
+      return;
+    }
+    this._createCommentsComponent();
+    this._commentsModel = new CommentsModel();
+    this._commentsModel.setComments(comments);
+    this._commentsComponent.renderComments(this._commentsModel);
+  }
+
+  onAddCommentError() {
+    if (this._mode === Mode.POPUP) {
+      this._commentsComponent.onAddCommentError();
+    }
+  }
+
+  onDeleteCommentError(id) {
+    if (this._mode === Mode.POPUP) {
+      this._commentsComponent.onDeleteCommentError(id);
+    }
   }
 
   render(movie) {
     this._movie = movie;
     this._renderCard();
     this._createFilmDetailsComponent();
-    this._renderComments();
   }
 
   rerender(id, newData) {
@@ -149,6 +189,7 @@ export default class MovieController {
       return;
     }
     this.render(newData);
+    this._enableMovieControl();
   }
 
   destroy() {
@@ -163,5 +204,26 @@ export default class MovieController {
       return;
     }
     this._closePopup();
+  }
+
+  _enableMovieControl() {
+    const disabledControl = (this._mode === Mode.DEFAULT) ?
+      this._cardComponent.getElement().querySelector(`.film-card__controls-item:disabled`)
+      : this._filmDetailsComponent.getElement().querySelector(`.film-details__control-input:disabled`);
+
+    if (disabledControl) {
+      disabledControl.disabled = false;
+    }
+    return disabledControl;
+  }
+
+  resetMovieControls(id) {
+    if (this._movie.id !== id) {
+      return;
+    }
+    const control = this._enableMovieControl();
+    if (this._mode === Mode.POPUP) {
+      control.checked = !control.checked;
+    }
   }
 }

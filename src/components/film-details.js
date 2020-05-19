@@ -67,7 +67,7 @@ const getFilmDetailsMarkup = (film) => {
           </div>
           <div class="film-details__info-wrap">
             <div class="film-details__poster">
-              <img class="film-details__poster-img" src="./images/posters/${poster}" alt="">
+              <img class="film-details__poster-img" src="./${poster}" alt="">
 
               <p class="film-details__age">${age}+</p>
             </div>
@@ -151,14 +151,23 @@ export default class FilmDetails extends AbstractComponent {
   }
 
   setToWatchlistButtonChangeHandler(handler) {
-    this.getElement().querySelector(`#watchlist`).addEventListener(`change`, handler);
+    this.getElement().querySelector(`#watchlist`).addEventListener(`change`, (evt) => {
+      evt.target.disabled = true;
+      handler();
+    });
   }
 
   setWatchedButtonChangeHandler(handler) {
-    this.getElement().querySelector(`#watched`).addEventListener(`change`, handler);
+    this.getElement().querySelector(`#watched`).addEventListener(`change`, (evt) => {
+      evt.target.disabled = true;
+      handler();
+    });
   }
 
   setFavoriteButtonChangeHandler(handler) {
-    this.getElement().querySelector(`#favorite`).addEventListener(`change`, handler);
+    this.getElement().querySelector(`#favorite`).addEventListener(`change`, (evt) => {
+      evt.target.disabled = true;
+      handler();
+    });
   }
 }

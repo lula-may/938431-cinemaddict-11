@@ -1,14 +1,15 @@
 import AbstractSmartComponent from "./abstract-smart-component";
+import CommentComponent from "./comment.js";
+import CommentModel from "../models/comment.js";
 import {EMOTIONS} from "../const.js";
-import {createElement, render} from "../utils/render.js";
+import {createElement, render, replace} from "../utils/render.js";
 
 
-const EMPTY_COMMENT = {
-  id: ``,
-  emotion: ``,
-  date: ``,
-  text: ``,
-};
+const EMPTY_COMMENT = new CommentModel({
+  "emotion": ``,
+  "date": null,
+  "text": ``
+});
 
 const getEmojiListMarkup = () => {
   return EMOTIONS.map((emotion) => {
@@ -22,18 +23,19 @@ const getEmojiListMarkup = () => {
 };
 
 export default class Comments extends AbstractSmartComponent {
-  constructor(movie, commentComponents, onCommentsDataChange) {
+  constructor(movie, onCommentsDataChange) {
     super();
     this._movie = movie;
-    this._commentComponents = commentComponents;
+    this._commentsModel = null;
+    this._commentComponents = [];
+    this._deletingComment = null;
     this._onCommentsDataChange = onCommentsDataChange;
-    this._newComment = Object.assign({}, EMPTY_COMMENT);
+    this._newComment = null;
 
-    this._subscribeOnEvents();
   }
 
   getTemplate() {
-    const commentsAmount = this._commentComponents.length;
+    const commentsAmount = this._movie.comments.length;
     const emojiListMarkup = getEmojiListMarkup();
 
     return (
@@ -64,12 +66,19 @@ export default class Comments extends AbstractSmartComponent {
     this._subscribeOnEvents();
   }
 
-  renderComments() {
+  renderComments(commentsModel) {
+    this._commentsModel = commentsModel;
     const commentsContainer = this.getElement().querySelector(`.film-details__comments-list`);
 
-    this._commentComponents.forEach((comment) => {
-      render(commentsContainer, comment);
+    this._commentComponents = this._commentsModel.getComments().map((comment) => {
+      return new CommentComponent(this._movie.id, comment);
     });
+
+    this._commentComponents.forEach((component) => {
+      render(commentsContainer, component);
+    });
+
+    this._subscribeOnEvents();
   }
 
   _renderCommentEmoji(emotion) {
@@ -85,7 +94,13 @@ export default class Comments extends AbstractSmartComponent {
     // Обработчики нажатия на Delete
     this._commentComponents.forEach((comment) => {
       comment.setDeleteButtonClickHandler(() => {
-        this._onCommentsDataChange(this._movie, comment.getComment(), null);
+        this._deletingComment = new CommentComponent(this._movie.id, comment.getComment());
+        this._deletingComment.setExternalData({
+          deleteButtonText: `Deleting...`,
+          isDeleteButtonBlocked: true
+        });
+        replace(this._deletingComment, comment);
+        this._onCommentsDataChange(this._movie.id, comment.getComment(), null);
       });
     });
 
@@ -97,12 +112,8 @@ export default class Comments extends AbstractSmartComponent {
       }
       const emotion = evt.target.value;
       this._renderCommentEmoji(emotion);
+      this._newComment = CommentModel.clone(EMPTY_COMMENT);
       this._newComment.emotion = emotion;
-    });
-
-    // Обработчик ввода текста комментария
-    element.querySelector(`.film-details__comment-input`).addEventListener(`change`, (evt) => {
-      this._newComment.text = evt.target.value;
     });
 
     // Обработчик отправки формы
@@ -110,10 +121,11 @@ export default class Comments extends AbstractSmartComponent {
       if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
         return;
       }
+      const textareaElement = element.querySelector(`.film-details__comment-input`);
+      textareaElement.readOnly = true;
+      this._newComment.text = textareaElement.value;
       this._newComment.date = new Date();
-      this._newComment.id = String(Math.round(new Date() * Math.random()));
-      this._onCommentsDataChange(this._movie, null, this._newComment);
-      this._newComment = Object.assign({}, EMPTY_COMMENT);
+      this._onCommentsDataChange(this._movie.id, null, this._newComment);
     });
   }
 
@@ -122,8 +134,26 @@ export default class Comments extends AbstractSmartComponent {
     this.renderComments();
   }
 
-  reset() {
-    this._newComment = Object.assign({}, EMPTY_COMMENT);
-    this.rerender();
+  onLoadCommentsError() {
+    const errorMessage = `<div>Failed to load comments. Try again later...</div>`;
+    this.getElement().querySelector(`h3`).insertAdjacentHTML(`afterend`, errorMessage);
+  }
+
+  onAddCommentError() {
+    const formElement = document.querySelector(`.film-details__inner`);
+    const textareaElement = this.getElement().querySelector(`.film-details__comment-input`);
+    textareaElement.style.boxShadow = `inset 0 0 5px 5px rgba(255, 0, 0, 1)`;
+    formElement.classList.add(`shake`);
+    setTimeout(() => {
+      formElement.classList.remove(`shake`);
+      textareaElement.readOnly = false;
+      textareaElement.style.boxShadow = ``;
+    }, 600);
+  }
+
+  onDeleteCommentError(id) {
+    const deletingComment = this._commentComponents.find((comment) => comment.getComment().id === id);
+    deletingComment.getElement().classList.add(`shake`);
+    replace(deletingComment, this._deletingComment);
   }
 }
