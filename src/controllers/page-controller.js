@@ -117,6 +117,13 @@ export default class PageController {
     }
   }
 
+  _updateMostCommentedMovies() {
+    this._showedMostCommentedControllers.forEach((controller) => controller.destroy());
+    this._showedMostCommentedControllers = this._createExtraFilms(this._mostCommentedComponent, getMostCommentedFilms);
+    if (!this._showedMostCommentedControllers.length) {
+      remove(this._mostCommentedComponent);
+    }
+  }
 
   render() {
     const films = this._moviesModel.getAllMovies();
@@ -193,11 +200,11 @@ export default class PageController {
         const updatedMovie = MovieModel.parseMovie(data.movie);
         const isSuccess = this._moviesModel.updateMovie(movieId, updatedMovie);
         if (isSuccess) {
-          this._showedMovieControllers.concat(this._showedExtraMovieControllers)
-          .forEach((controller) => controller.rerender(movieId, updatedMovie));
+          allControllers.forEach((controller) => controller.rerender(movieId, updatedMovie));
         }
         const updatedComments = CommentModel.parseComments(data.comments);
         allControllers.forEach((controller) => controller.updateComments(movieId, updatedComments));
+        this._updateMostCommentedMovies();
       })
       .catch(() => {
         allControllers.forEach((controller) => controller.onAddCommentError());
@@ -218,6 +225,7 @@ export default class PageController {
           allControllers.forEach((controller) => controller.rerender(movieId, updatedMovie));
         }
         allControllers.forEach((controller) => controller.updateComments(movieId, updatedComments));
+        this._updateMostCommentedMovies();
       })
       .catch(() => {
         allControllers.forEach((controller) => controller.onDeleteCommentError(oldData.id));
@@ -226,8 +234,8 @@ export default class PageController {
   }
 
   _onViewChange() {
-    [...this._showedMovieControllers, ...this._showedTopRatedControllers, ...this._showedMostCommentedControllers]
-      .forEach((controller) => controller.setDefaultView());
+    const allControllers = [...this._showedMovieControllers, ...this._showedTopRatedControllers, ...this._showedMostCommentedControllers];
+    allControllers.forEach((controller) => controller.setDefaultView());
   }
 
   _onSortTypeChange(sortType) {
