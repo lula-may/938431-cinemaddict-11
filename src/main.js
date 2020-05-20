@@ -9,12 +9,16 @@ import PageController from "./controllers/page-controller.js";
 import SiteNavComponent from "./components/site-nav.js";
 import SortComponent from "./components/sort.js";
 import StatisticsComponent from "./components/statistics.js";
+import Store from "./api/store.js";
 import UserProfileComponent from "./components/user-profile.js";
 import {RenderPosition, render, remove} from "./utils/render.js";
 import {NavType, FilterType} from "./const.js";
 
 const AUTHORIZATION = `Basic f8Lid33jXHpo4/?`;
 const END_POINT = `https://11.ecmascript.pages.academy/cinemaddict`;
+const STORE_PREFIX = `cinemaddict`;
+const STORE_VERSION = `v1`;
+const STORE_NAME = `${STORE_PREFIX}-${STORE_VERSION}`;
 
 const bodyElement = document.body;
 const pageHeaderElement = bodyElement.querySelector(`.header`);
@@ -22,7 +26,8 @@ const pageMainElement = bodyElement.querySelector(`.main`);
 const footerStatisticsElement = bodyElement.querySelector(`.footer__statistics`);
 
 const api = new API(AUTHORIZATION, END_POINT);
-const providerWithApi = new Provider(api);
+const store = new Store(STORE_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, store);
 const moviesModel = new MoviesModel();
 
 const siteNavComponent = new SiteNavComponent();
@@ -33,7 +38,7 @@ const cardsListComponent = new CardsListComponent();
 
 const statisticsComponent = new StatisticsComponent(moviesModel);
 const filterController = new FilterController(siteNavComponent.getElement(), moviesModel);
-const pageController = new PageController(pageMainElement, bodyElement, moviesModel, providerWithApi);
+const pageController = new PageController(pageMainElement, bodyElement, moviesModel, apiWithProvider);
 
 siteNavComponent.setOnChangeHandler((navItem) => {
   if (navItem === NavType.STATS) {
@@ -55,7 +60,8 @@ cardsListComponent.showLoadingMessage();
 // Экран со статистикой
 render(pageMainElement, statisticsComponent);
 statisticsComponent.hide();
-api.getMovies()
+
+apiWithProvider.getMovies()
 .then((movies) => {
   moviesModel.setMovies(movies);
   const userLevel = getFilmsByFilter(FilterType.HISTORY, movies).length;

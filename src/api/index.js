@@ -39,7 +39,7 @@ export default class API {
   }
 
   getComments(movieId) {
-    return this._load({url: `comments/${movieId}s`})
+    return this._load({url: `comments/${movieId}`})
       .then((response) => response.json())
       .then(Comment.parseComments);
   }

@@ -1,10 +1,22 @@
+const isOnline = () => {
+  return window.navigator.onLine;
+};
+
 export default class Provider {
-  constructor(api) {
+  constructor(api, storage) {
     this._api = api;
+    this._storage = storage;
   }
 
   getMovies() {
-    return this._api.getMovies();
+    if (isOnline()) {
+      return this._api.getMovies()
+      .then((movies) => {
+        movies.forEach((movie) => this._storage.setItem(movie.id, movie.convertToRaw()));
+        return movies;
+      });
+    }
+    return Promise.reject(`Offline logic is not implemented`);
   }
 
   updateMovie(id, data) {
