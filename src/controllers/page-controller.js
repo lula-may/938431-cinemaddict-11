@@ -229,7 +229,7 @@ export default class PageController {
       .then((updatedComments) => {
         const movie = this._moviesModel.getMovieById(movieId);
         const updatedMovie = MovieModel.clone(movie);
-        updatedMovie.comments = updatedComments;
+        updatedMovie.updateComments(updatedComments);
         const isSuccess = this._moviesModel.updateMovie(movieId, updatedMovie);
         if (isSuccess) {
           allControllers.forEach((controller) => controller.rerender(movieId, updatedMovie));

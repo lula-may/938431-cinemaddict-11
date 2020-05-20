@@ -123,10 +123,24 @@ export default class Comments extends AbstractSmartComponent {
         return;
       }
       const textareaElement = element.querySelector(`.film-details__comment-input`);
-      textareaElement.readOnly = true;
       this._newComment.text = textareaElement.value;
       this._newComment.date = new Date();
+      this._disableFormElements();
       this._onCommentsDataChange(this._movie.id, null, this._newComment);
+    });
+  }
+
+  disableFormElements() {
+    const formElements = this.getElement().querySelectorAll(`textarea, input`);
+    formElements.forEach((element) => {
+      element.disabled = true;
+    });
+  }
+
+  _enableFormElements() {
+    const formElements = this.getElement().querySelectorAll(`textarea, input`);
+    formElements.forEach((element) => {
+      element.disabled = false;
     });
   }
 
@@ -138,6 +152,7 @@ export default class Comments extends AbstractSmartComponent {
   onLoadCommentsError() {
     const errorMessage = `<div>Failed to load comments. Try again later...</div>`;
     this.getElement().querySelector(`h3`).insertAdjacentHTML(`afterend`, errorMessage);
+    this.disableFormElements();
   }
 
   onAddCommentError() {
@@ -147,8 +162,8 @@ export default class Comments extends AbstractSmartComponent {
     formElement.classList.add(`shake`);
     setTimeout(() => {
       formElement.classList.remove(`shake`);
-      textareaElement.readOnly = false;
       textareaElement.style.boxShadow = ``;
+      this._enableFormElements();
     }, ERROR_TIMEOUT);
   }
 

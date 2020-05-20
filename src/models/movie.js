@@ -67,6 +67,11 @@ export default class Movie {
     };
   }
 
+  updateComments(comments) {
+    const newComments = comments.map((item) => item.id);
+    this.comments = newComments;
+  }
+
   static parseMovie(movie) {
     return new Movie(movie);
   }
