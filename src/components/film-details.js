@@ -139,6 +139,7 @@ export default class FilmDetails extends AbstractComponent {
   constructor(film) {
     super();
     this._film = film;
+    this._changedControl = null;
   }
 
   getTemplate() {
@@ -152,22 +153,45 @@ export default class FilmDetails extends AbstractComponent {
 
   setToWatchlistButtonChangeHandler(handler) {
     this.getElement().querySelector(`#watchlist`).addEventListener(`change`, (evt) => {
-      evt.target.disabled = true;
+      this._changedControl = evt.target;
+      this._disableControls();
       handler();
     });
   }
 
   setWatchedButtonChangeHandler(handler) {
     this.getElement().querySelector(`#watched`).addEventListener(`change`, (evt) => {
-      evt.target.disabled = true;
+      this._changedControl = evt.target;
+      this._disableControls();
       handler();
     });
   }
 
   setFavoriteButtonChangeHandler(handler) {
     this.getElement().querySelector(`#favorite`).addEventListener(`change`, (evt) => {
-      evt.target.disabled = true;
+      this._changedControl = evt.target;
+      this._disableControls();
       handler();
     });
+  }
+
+  _disableControls() {
+    const controls = this.getElement().querySelectorAll(`.film-details__control-input`);
+    controls.forEach((control) => {
+      control.disabled = true;
+    });
+  }
+
+  resetControls() {
+    const controls = this.getElement().querySelectorAll(`.film-details__control-input:disabled`);
+    controls.forEach((control) => {
+      control.disabled = false;
+    });
+  }
+
+  undoChanges() {
+    this.resetControls();
+    this._changedControl.checked = !this._changedControl.checked;
+    this._changedControl = null;
   }
 }

@@ -1,5 +1,20 @@
 import {SortType} from "../components/sort.js";
 
+const getRandomInteger = (min, max) => Math.round(Math.random() * (max - min) + min);
+
+const getRandomItems = (items, amount) => {
+  const subList = [];
+  const initialItems = items.slice();
+  if (amount) {
+    for (let i = 0; i < amount; i++) {
+      const index = getRandomInteger(0, initialItems.length - 1);
+      subList.push(initialItems[index]);
+      initialItems.splice(index, 1);
+    }
+  }
+  return subList;
+};
+
 const getUserLevel = (films) => {
   return films.reduce((acc, film) => {
     if (film.isInHistory) {
@@ -30,26 +45,42 @@ const getSortedFilms = (films, sortType) => {
 };
 
 const getMostCommentedFilms = (films, amount) => {
-  return films
-  .slice()
-  .sort((left, right) => {
-    return right.comments.length - left.comments.length;
-  })
-  .slice(0, amount);
+  let checkedFilms = [];
+  if (films.some((film) => film.comments.length > 0)) {
+    const sortedFilms = films
+    .slice()
+    .sort((left, right) => {
+      return right.comments.length - left.comments.length;
+    });
+    // Находим фильмы с одинаковым количеством комментариев
+    const sameCommentsAmountFilms = [];
+    const maxCommentsAmount = sortedFilms[0].comments.length;
+    for (let film of sortedFilms) {
+      if (film.comments.length === maxCommentsAmount) {
+        sameCommentsAmountFilms.push(film);
+      } else {
+        break;
+      }
+    }
+
+    if (sameCommentsAmountFilms.length > 2) {
+      checkedFilms = getRandomItems(sameCommentsAmountFilms, amount);
+    } else {
+      checkedFilms = sortedFilms.slice(0, amount);
+    }
+  }
+  return checkedFilms;
 };
 
 const getTopRatedFilms = (films, amount) => {
-  return films
+  if (films.some((film) => film.rating > 0)) {
+    return films
     .slice().sort((left, right) => {
       return right.rating - left.rating;
     })
     .slice(0, amount);
+  }
+  return [];
 };
 
-const getExtraFilms = (films, amount) => {
-  const extraFilms = [];
-  extraFilms.push(getTopRatedFilms(films, amount));
-  extraFilms.push(getMostCommentedFilms(films, amount));
-  return extraFilms;
-};
-export {getUserLevel, getExtraFilms, getSortedFilms};
+export {getUserLevel, getMostCommentedFilms, getTopRatedFilms, getSortedFilms};

@@ -85,4 +85,22 @@ export default class Card extends AbstractComponent {
       handler();
     });
   }
+
+  _disableControls() {
+    const controls = this.getElement().querySelectorAll(`.film-card__controls button`);
+    controls.forEach((control) => {
+      control.disabled = true;
+    });
+  }
+
+  resetControls() {
+    const controls = this.getElement().querySelectorAll(`.film-card__controls button:disabled`);
+
+    if (!controls.length) {
+      return;
+    }
+    controls.forEach((control) => {
+      control.disabled = false;
+    });
+  }
 }

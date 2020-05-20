@@ -4,6 +4,7 @@ import CommentModel from "../models/comment.js";
 import {EMOTIONS} from "../const.js";
 import {createElement, render, replace} from "../utils/render.js";
 
+const ERROR_TIMEOUT = 600;
 
 const EMPTY_COMMENT = new CommentModel({
   "emotion": ``,
@@ -148,7 +149,7 @@ export default class Comments extends AbstractSmartComponent {
       formElement.classList.remove(`shake`);
       textareaElement.readOnly = false;
       textareaElement.style.boxShadow = ``;
-    }, 600);
+    }, ERROR_TIMEOUT);
   }
 
   onDeleteCommentError(id) {

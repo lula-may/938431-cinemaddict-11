@@ -1,3 +1,4 @@
+const HIDDEN_CLASS = `visually-hidden`;
 const EMOTIONS = [`smile`, `sleeping`, `puke`, `angry`];
 
 const FilterType = {
@@ -11,8 +12,5 @@ const NavType = {
   FILMS: `films`,
   STATS: `stats`
 };
-
-
-const HIDDEN_CLASS = `visually-hidden`;
 
 export {EMOTIONS, FilterType, NavType, HIDDEN_CLASS};
