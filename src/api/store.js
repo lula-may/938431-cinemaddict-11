@@ -12,7 +12,9 @@ export default class Store {
     }
   }
 
-  setItems() {}
+  setItems(unitedValues) {
+    this._storage.setItem(this._storageKey, JSON.stringify(unitedValues));
+  }
 
   setItem(key, value) {
     const store = this.getItems();
@@ -23,6 +25,4 @@ export default class Store {
         )
     );
   }
-
-  removeItem(key) {}
 }
