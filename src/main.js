@@ -75,3 +75,15 @@ apiWithProvider.getMovies()
   remove(cardsListComponent);
   render(pageMainElement, new NoFilmsComponent());
 });
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+  if (!apiWithProvider.syncIsNeeded) {
+    return;
+  }
+  apiWithProvider.sync();
+});

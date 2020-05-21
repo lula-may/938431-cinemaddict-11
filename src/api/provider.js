@@ -6,7 +6,7 @@ const isOnline = () => {
 
 const createStorageStructure = (items) => {
   return items.reduce((acc, item) => {
-    acc[item.id] = item.convertToRaw();
+    acc[item.id] = item;
     return acc;
   }, {});
 };
@@ -15,18 +15,18 @@ export default class Provider {
   constructor(api, storage) {
     this._api = api;
     this._storage = storage;
-    this._isSyncNeeded = false;
+    this._syncIsNeeded = false;
   }
 
-  get isSyncNeeded() {
-    return this._isSyncNeeded;
+  get syncIsNeeded() {
+    return this._syncIsNeeded;
   }
 
   getMovies() {
     if (isOnline()) {
       return this._api.getMovies()
       .then((movies) => {
-        const unitedMovies = createStorageStructure(movies);
+        const unitedMovies = createStorageStructure(movies.map((movie) => movie.convertToRaw()));
         this._storage.setItem(unitedMovies);
         return movies;
       });
@@ -45,7 +45,7 @@ export default class Provider {
     }
     const localMovie = MovieModel.clone(Object.assign(movie, {id}));
     this._storage.setItem(id, localMovie.convertToRaw());
-    this._isSyncNeeded = true;
+    this._syncIsNeeded = true;
     return Promise.resolve(localMovie);
   }
 
@@ -59,5 +59,19 @@ export default class Provider {
 
   deleteComment(id) {
     return this._api.deleteComment(id);
+  }
+
+  sync() {
+    if (isOnline()) {
+      const storedMovies = Object.values(this._storage.getItems());
+
+      return this._api.sync(storedMovies)
+        .then((response) => {
+          const updatedMovies = createStorageStructure(response.updated);
+          this._storage.setItems(updatedMovies);
+          this._syncIsNeeded = false;
+        });
+    }
+    return Promise.reject(`Sync data failed`);
   }
 }
