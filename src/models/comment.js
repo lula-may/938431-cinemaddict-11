@@ -9,9 +9,9 @@ export default class Comment {
 
   convertToRaw() {
     return {
-      "emotion": this.emotion,
       "comment": this.text,
-      "date": this.date ? this.date.toISOString() : null
+      "date": this.date ? this.date.toISOString() : null,
+      "emotion": this.emotion,
     };
   }
 
