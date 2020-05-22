@@ -82,6 +82,18 @@ export default class Comments extends AbstractSmartComponent {
     this._subscribeOnEvents();
   }
 
+  rerender() {
+    super.rerender();
+    this.renderComments();
+  }
+
+  disableFormElements() {
+    const formElements = this.getElement().querySelectorAll(`textarea, input`);
+    formElements.forEach((element) => {
+      element.disabled = true;
+    });
+  }
+
   _renderCommentEmoji(emotion) {
     const template = `<img src="images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">`;
     const emojiContainer = this.getElement().querySelector(`.film-details__add-emoji-label`);
@@ -92,7 +104,7 @@ export default class Comments extends AbstractSmartComponent {
 
   _subscribeOnEvents() {
     const element = this.getElement();
-    // Обработчики нажатия на Delete
+    // Обработчик нажатия на Delete
     this._commentComponents.forEach((comment) => {
       comment.setDeleteButtonClickHandler(() => {
         this._deletingComment = new CommentComponent(this._movie.id, comment.getComment());
@@ -132,23 +144,11 @@ export default class Comments extends AbstractSmartComponent {
     });
   }
 
-  disableFormElements() {
-    const formElements = this.getElement().querySelectorAll(`textarea, input`);
-    formElements.forEach((element) => {
-      element.disabled = true;
-    });
-  }
-
   _enableFormElements() {
     const formElements = this.getElement().querySelectorAll(`textarea, input`);
     formElements.forEach((element) => {
       element.disabled = false;
     });
-  }
-
-  rerender() {
-    super.rerender();
-    this.renderComments();
   }
 
   onLoadCommentsError() {

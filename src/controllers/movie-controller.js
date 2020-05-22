@@ -33,6 +33,59 @@ export default class MovieController {
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
   }
 
+  render(movie) {
+    this._movie = movie;
+    this._renderCard();
+    this._createFilmDetailsComponent();
+  }
+
+  rerender(id, newData) {
+    if (this._movie.id !== id) {
+      return;
+    }
+    this.render(newData);
+    this._resetMovieControls();
+  }
+
+  destroy() {
+    remove(this._cardComponent);
+    remove(this._filmDetailsComponent);
+    this._commentComponents.forEach((comment) => remove(comment));
+    document.removeEventListener(`keydown`, this._onEscPress);
+  }
+
+  setDefaultView() {
+    if (this._mode === Mode.DEFAULT) {
+      return;
+    }
+    this._closePopup();
+  }
+
+  updateComments(movieId, comments) {
+    if (this._movie.id !== movieId) {
+      return;
+    }
+    this._createCommentsComponent();
+    this._commentsModel = new CommentsModel();
+    this._commentsModel.setComments(comments);
+    this._commentsComponent.renderComments(this._commentsModel);
+  }
+
+  undoChanges(id) {
+    if (this._movie.id !== id) {
+      return false;
+    }
+
+    switch (this._mode) {
+      case Mode.POPUP:
+        this._filmDetailsComponent.undoChanges();
+        break;
+      default:
+        this._cardComponent.resetControls();
+    }
+    return true;
+  }
+
   _openPopup() {
     this._onViewChange();
 
@@ -143,44 +196,6 @@ export default class MovieController {
     }
   }
 
-  updateComments(movieId, comments) {
-    if (this._movie.id !== movieId) {
-      return;
-    }
-    this._createCommentsComponent();
-    this._commentsModel = new CommentsModel();
-    this._commentsModel.setComments(comments);
-    this._commentsComponent.renderComments(this._commentsModel);
-  }
-
-  render(movie) {
-    this._movie = movie;
-    this._renderCard();
-    this._createFilmDetailsComponent();
-  }
-
-  rerender(id, newData) {
-    if (this._movie.id !== id) {
-      return;
-    }
-    this.render(newData);
-    this._resetMovieControls();
-  }
-
-  destroy() {
-    remove(this._cardComponent);
-    remove(this._filmDetailsComponent);
-    this._commentComponents.forEach((comment) => remove(comment));
-    document.removeEventListener(`keydown`, this._onEscPress);
-  }
-
-  setDefaultView() {
-    if (this._mode === Mode.DEFAULT) {
-      return;
-    }
-    this._closePopup();
-  }
-
   _resetMovieControls() {
     switch (this._mode) {
       case Mode.POPUP:
@@ -189,34 +204,6 @@ export default class MovieController {
       default:
         this._cardComponent.resetControls();
     }
-  }
-
-  undoChanges(id) {
-    if (this._movie.id !== id) {
-      return false;
-    }
-
-    switch (this._mode) {
-      case Mode.POPUP:
-        this._filmDetailsComponent.undoChanges();
-        break;
-      default:
-        this._cardComponent.resetControls();
-    }
-    return true;
-  }
-
-  _onEscPress(evt) {
-    if (evt.key === `Escape`) {
-      evt.preventDefault();
-      this._closePopup();
-      document.removeEventListener(`keydown`, this._onEscPress);
-    }
-  }
-
-  _onCloseButtonClick() {
-    this._closePopup();
-    document.removeEventListener(`keydown`, this._onEscPress);
   }
 
   onAddCommentError() {
@@ -233,5 +220,18 @@ export default class MovieController {
     }
     this._commentsComponent.onDeleteCommentError(id);
     return true;
+  }
+
+  _onEscPress(evt) {
+    if (evt.key === `Escape`) {
+      evt.preventDefault();
+      this._closePopup();
+      document.removeEventListener(`keydown`, this._onEscPress);
+    }
+  }
+
+  _onCloseButtonClick() {
+    this._closePopup();
+    document.removeEventListener(`keydown`, this._onEscPress);
   }
 }

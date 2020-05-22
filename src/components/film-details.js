@@ -175,13 +175,6 @@ export default class FilmDetails extends AbstractComponent {
     });
   }
 
-  _disableControls() {
-    const controls = this.getElement().querySelectorAll(`.film-details__control-input`);
-    controls.forEach((control) => {
-      control.disabled = true;
-    });
-  }
-
   resetControls() {
     const controls = this.getElement().querySelectorAll(`.film-details__control-input:disabled`);
     controls.forEach((control) => {
@@ -193,5 +186,12 @@ export default class FilmDetails extends AbstractComponent {
     this.resetControls();
     this._changedControl.checked = !this._changedControl.checked;
     this._changedControl = null;
+  }
+
+  _disableControls() {
+    const controls = this.getElement().querySelectorAll(`.film-details__control-input`);
+    controls.forEach((control) => {
+      control.disabled = true;
+    });
   }
 }

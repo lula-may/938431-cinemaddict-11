@@ -54,6 +54,46 @@ export default class PageController {
     this._moviesModel.setFilterChangeHandler(this._onFilterChange);
   }
 
+  render() {
+    const films = this._moviesModel.getAllMovies();
+    this._currentFilteredMovies = films;
+    render(this._container, this._sortComponent);
+
+    if (!films.length) {
+      render(this._container, this._noFilmsComponent);
+      return;
+    }
+    const cardsListComponent = this._cardListComponent;
+    render(this._container, cardsListComponent);
+
+    //  Находим контейнер для карточек фильмов
+    this._filmsListContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
+    this._renderMovies(films.slice(0, this._showingCardsCount));
+
+    // Отрисовываем кнопку для открытия следующей порции карточек
+    this._filmsList = cardsListComponent.getElement().querySelector(`.films-list`);
+    this._renderShowMoreButton();
+
+    // Навешиваем обработчик изменения типа сортировки
+    this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
+
+    // Дополнительные секции
+    this._renderExtraFilms();
+  }
+
+  hide() {
+    this._cardListComponent.hide();
+    this._sortComponent.hide();
+    this._noFilmsComponent.hide();
+    this._resetSortType();
+  }
+
+  show() {
+    this._sortComponent.show();
+    this._cardListComponent.show();
+    this._noFilmsComponent.show();
+  }
+
   _renderMovies(movies) {
     // создаем контроллеры фильмов и отрисовываем карточки
     // Запоминаем контроллеры
@@ -123,46 +163,6 @@ export default class PageController {
     if (!this._showedMostCommentedControllers.length) {
       remove(this._mostCommentedComponent);
     }
-  }
-
-  render() {
-    const films = this._moviesModel.getAllMovies();
-    this._currentFilteredMovies = films;
-    render(this._container, this._sortComponent);
-
-    if (!films.length) {
-      render(this._container, this._noFilmsComponent);
-      return;
-    }
-    const cardsListComponent = this._cardListComponent;
-    render(this._container, cardsListComponent);
-
-    //  Находим контейнер для карточек фильмов
-    this._filmsListContainer = cardsListComponent.getElement().querySelector(`.films-list__container`);
-    this._renderMovies(films.slice(0, this._showingCardsCount));
-
-    // Отрисовываем кнопку для открытия следующей порции карточек
-    this._filmsList = cardsListComponent.getElement().querySelector(`.films-list`);
-    this._renderShowMoreButton();
-
-    // Навешиваем обработчик изменения типа сортировки
-    this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
-
-    // Дополнительные секции
-    this._renderExtraFilms();
-  }
-
-  hide() {
-    this._cardListComponent.hide();
-    this._sortComponent.hide();
-    this._noFilmsComponent.hide();
-    this._resetSortType();
-  }
-
-  show() {
-    this._sortComponent.show();
-    this._cardListComponent.show();
-    this._noFilmsComponent.show();
   }
 
   _onShowMoreButtonClick() {
