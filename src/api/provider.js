@@ -27,7 +27,7 @@ export default class Provider {
       return this._api.getMovies()
       .then((movies) => {
         const unitedMovies = createStorageStructure(movies.map((movie) => movie.convertToRaw()));
-        this._storage.setItem(unitedMovies);
+        this._storage.setItems(unitedMovies);
         return movies;
       });
     }
