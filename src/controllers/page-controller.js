@@ -186,7 +186,7 @@ export default class PageController {
         }
       })
       .catch(() => {
-        for (let controller of allControllers) {
+        for (const controller of allControllers) {
           const isSuccess = controller.undoChanges(oldData.id);
           if (isSuccess) {
             break;
@@ -212,7 +212,7 @@ export default class PageController {
         this._updateMostCommentedMovies();
       })
       .catch(() => {
-        for (let controller of allControllers) {
+        for (const controller of allControllers) {
           const isSuccess = controller.onAddCommentError();
           if (isSuccess) {
             break;
@@ -238,7 +238,7 @@ export default class PageController {
         this._updateMostCommentedMovies();
       })
       .catch(() => {
-        for (let controller of allControllers) {
+        for (const controller of allControllers) {
           const isSuccess = controller.onDeleteCommentError(oldData.id);
           if (isSuccess) {
             break;

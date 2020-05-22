@@ -46,6 +46,7 @@ const getSortedFilms = (films, sortType) => {
 
 const getMostCommentedFilms = (films, amount) => {
   let checkedFilms = [];
+  // Сортируем фильмы по количеству комментариев
   if (films.some((film) => film.comments.length > 0)) {
     const sortedFilms = films
     .slice()
@@ -53,21 +54,11 @@ const getMostCommentedFilms = (films, amount) => {
       return right.comments.length - left.comments.length;
     });
     // Находим фильмы с одинаковым количеством комментариев
-    const sameCommentsAmountFilms = [];
     const maxCommentsAmount = sortedFilms[0].comments.length;
-    for (let film of sortedFilms) {
-      if (film.comments.length === maxCommentsAmount) {
-        sameCommentsAmountFilms.push(film);
-      } else {
-        break;
-      }
-    }
-
-    if (sameCommentsAmountFilms.length > 2) {
-      checkedFilms = getRandomItems(sameCommentsAmountFilms, amount);
-    } else {
-      checkedFilms = sortedFilms.slice(0, amount);
-    }
+    const sameCommentsAmountFilms = sortedFilms.filter((film) => film.comments.length === maxCommentsAmount);
+    checkedFilms = (sameCommentsAmountFilms.length > 2)
+      ? getRandomItems(sameCommentsAmountFilms, amount)
+      : sortedFilms.slice(0, amount);
   }
   return checkedFilms;
 };

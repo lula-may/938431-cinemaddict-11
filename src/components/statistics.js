@@ -39,7 +39,7 @@ const getDateFromByFilter = (filter) => {
   if (filter === StatisticsFilterType.ALL) {
     return null;
   }
-  let dateFrom = moment();
+  const dateFrom = moment();
   switch (filter) {
     case StatisticsFilterType.TODAY:
       break;
