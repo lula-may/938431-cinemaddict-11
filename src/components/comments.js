@@ -119,13 +119,15 @@ export default class Comments extends AbstractSmartComponent {
 
     // Обработчик отправки формы
     element.addEventListener(`keydown`, (evt) => {
-      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || !this._newComment.emotion) {
+      const textareaElement = element.querySelector(`.film-details__comment-input`);
+      const formIsEmpty = !textareaElement.value || !this._newComment.emotion;
+
+      if (!((evt.ctrlKey || evt.metaKey) && evt.key === `Enter`) || formIsEmpty) {
         return;
       }
-      const textareaElement = element.querySelector(`.film-details__comment-input`);
       this._newComment.text = textareaElement.value;
       this._newComment.date = new Date();
-      this._disableFormElements();
+      this.disableFormElements();
       this._onCommentsDataChange(this._movie.id, null, this._newComment);
     });
   }
