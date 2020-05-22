@@ -87,3 +87,11 @@ window.addEventListener(`online`, () => {
   }
   apiWithProvider.sync();
 });
+
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`./sw.js`)
+  .then(() => {})
+  .catch((err) => {
+    throw err;
+  });
+});
