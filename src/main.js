@@ -16,7 +16,7 @@ import {NavType, FilterType} from "./const.js";
 
 const AUTHORIZATION = `Basic f8Lid33jXHpo4/?`;
 const END_POINT = `https://11.ecmascript.pages.academy/cinemaddict`;
-const STORE_PREFIX = `cinemaddict`;
+const STORE_PREFIX = `cinemaddict-localstorage`;
 const STORE_VERSION = `v1`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VERSION}`;
 
